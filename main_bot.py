@@ -35,7 +35,7 @@ def CheckUp():
         attempt = 0
 
         # подгрузка настроек из json-файла
-        with open('settings.json', encoding='utf-8') as settings_file:
+        with open('env.json', encoding='utf-8') as settings_file:
             settings = json.load(settings_file)
 
         accounts = settings['accounts']
@@ -47,15 +47,16 @@ def CheckUp():
             for donor in data['donors']:
                 # mkslift
                 if donor['name'] == 'mkslift':
-                    print(f"Account name: {account["name"]}, donor name: {donor['name']}")
+                    print(f"Account name: {account["name"]}, donor name: {donor['name']}, discount: {donor['discount']}")
                     daily_report['mkslift'] = mkslift_check(donor['link'], donor['discount'], donor['days_delta'], yandex_token, 
                                 donor['yandex_image_folder_path'], annex, check_new, excel_file_name, currencies, periodic_save_delta)
                 # ironmac
                 if donor['name'] == 'ironmac':
-                    print(f"Account name: {account["name"]}, donor name: {donor['name']}")
+                    print(f"Account name: {account["name"]}, donor name: {donor['name']}, discount: {donor['discount']}")
                     daily_report['ironmac'] = ironmac_check(donor['link'], donor['discount'], donor['days_delta'], yandex_token, 
                                 donor['yandex_image_folder_path'], annex, check_new, excel_file_name, currencies, periodic_save_delta)               
         message = f"Успешное обновление выгрузки!"
+        print(message)
         requests.get(f"https://api.telegram.org/bot{bot_token}/sendMessage?chat_id={chat_id}&text={message}").json()
 
     except Exception as e:
@@ -73,9 +74,9 @@ def CheckUp():
             message = f"Похоже какая-то херня с донором, интернет-то есть, глянь-ка!"
             requests.get(f"https://api.telegram.org/bot{bot_token}/sendMessage?chat_id={chat_id}&text={message}").json()
             CheckUp()
-
-    print(daily_report)
-    print(f"Следующая проверка завтра в {start_time}")
+    finally:
+        print(daily_report)
+        print(f"Следующая проверка завтра в {start_time}")
 
 CheckUp()           
 schedule.every().day.at(start_time).do(CheckUp) 

@@ -8,7 +8,7 @@
                     {
                         "name": "mkslift",
                         "link": "https://www.mkslift.ru/export_xml.php?key=176ec86554e7edcec3dd5ef05dd58d9d",
-                        "discount": 5,
+                        "discount": 10,
                         "days_delta": 14,
                         "yandex_image_folder_path": "MKSLIFT Main pictures"
                     },
@@ -20,7 +20,7 @@
                         "yandex_image_folder_path": "IronMac Main pictures"
                     }
                 ],
-                "yandex_token": "y0_AgAAAAB2eAMkAAvtEgAAAAEHDYscAAAO0qWJlTtHEYrzMF1eVgrRvisOSQ",
+                "yandex_token": "",
                 "excel_file_name": "Выгрузка Промторг"
             }
         }
