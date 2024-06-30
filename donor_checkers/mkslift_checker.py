@@ -43,9 +43,7 @@ def mkslift_check(donor_link, discount, days_delta, yandex_token, yandex_image_f
                 # цена
                 try:
                     price = round(float(offer.find('price').text)*((100 - discount)/100), 0)
-                    print(f"{vendorCode} {float(offer.find('price').text)} -> {price}")
                 except:
-                    print(f"exception, id: {vendorCode}")
                     continue
 
                 if float(price) > 3000: 

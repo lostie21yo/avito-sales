@@ -8,6 +8,7 @@ import requests
 # my modules
 from donor_checkers.mkslift_checker import mkslift_check
 from donor_checkers.ironmac_checker import ironmac_check
+from donor_checkers.garopt_checker import garopt_check
 
 # периодичность и время
 first_launch_date = datetime.now().date()
@@ -54,8 +55,23 @@ def CheckUp():
                 if donor['name'] == 'ironmac':
                     print(f"Account name: {account["name"]}, donor name: {donor['name']}, discount: {donor['discount']}")
                     daily_report['ironmac'] = ironmac_check(donor['link'], donor['discount'], donor['days_delta'], yandex_token, 
-                                donor['yandex_image_folder_path'], annex, check_new, excel_file_name, currencies, periodic_save_delta)               
-        message = f"Успешное обновление выгрузки!"
+                                donor['yandex_image_folder_path'], annex, check_new, excel_file_name, currencies, periodic_save_delta)
+                # garopt1
+                if donor['name'] == 'garopt1':
+                    print(f"Account name: {account["name"]}, donor name: {donor['name']}, discount: {donor['discount']}")
+                    daily_report['ironmac'] = garopt_check(donor['link'],  donor['discount'], donor['days_delta'], yandex_token, 
+                            donor['yandex_image_folder_path'], annex, check_new, excel_file_name, currencies, periodic_save_delta)
+                # garopt2
+                if donor['name'] == 'garopt2':
+                    print(f"Account name: {account["name"]}, donor name: {donor['name']}, discount: {donor['discount']}")
+                    daily_report['ironmac'] = garopt_check(donor['link'],  donor['discount'], donor['days_delta'], yandex_token, 
+                            donor['yandex_image_folder_path'], annex, check_new, excel_file_name, currencies, periodic_save_delta) 
+                # garopt3
+                if donor['name'] == 'garopt3':
+                    print(f"Account name: {account["name"]}, donor name: {donor['name']}, discount: {donor['discount']}")
+                    daily_report['ironmac'] = garopt_check(donor['link'],  donor['discount'], donor['days_delta'], yandex_token, 
+                            donor['yandex_image_folder_path'], annex, check_new, excel_file_name, currencies, periodic_save_delta)               
+        message = f"Успешное обновление выгрузки!"              
         print(message)
         requests.get(f"https://api.telegram.org/bot{bot_token}/sendMessage?chat_id={chat_id}&text={message}").json()
 
