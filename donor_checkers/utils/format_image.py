@@ -22,7 +22,7 @@ def format_image(link, target_size = (1280, 960)):
     else:
         new_w, new_h = round(w*coef2), target_size[1]
         img = cv2.resize(img, (new_w, new_h), interpolation=cv2.INTER_AREA)
-        img = cv2.cvtColor(img, cv2.COLOR_RGBA2BGR)
+        img = cv2.cvtColor(img, cv2.COLOR_RGBA2RGB)
         line_width = round((target_size[0] - new_w)/2)
         nul = np.full((new_h, line_width, 3), 255)
         img = np.hstack((nul, img))
@@ -32,4 +32,6 @@ def format_image(link, target_size = (1280, 960)):
     # img = cv2.resize(img, target_size, interpolation=cv2.INTER_AREA)
     # сохранение
     # cv2.imwrite("prog1/new_image.jpg", img)
-    return img
+    return img 
+
+# cv2.imwrite("new_image.jpg", format_image("http://garopt.online/wa-data/public/shop/products/65/53/65365/images/29731/29731.970.png")) 

@@ -38,7 +38,7 @@ def ironmac_check(donor_link, discount, days_delta, yandex_token, yandex_image_f
     if check_new:
         print('Добавление новых позиций')
         for i in trange(len(donor_df)):
-            # vendroCode
+            # vendorCode
             vendorCode = f'ironmac-{donor_df['id'][i]}'
             if vendorCode not in unique_Ids.values:
                 # print(vendorCode)
@@ -51,7 +51,7 @@ def ironmac_check(donor_link, discount, days_delta, yandex_token, yandex_image_f
                         course = currencies['Valute'][valute]['Value']
                     else:
                         course = 1
-                    price = round(float(donor_df['Цена'][i])*(1 - discount/100) * float(course), 0)
+                    price = round(float(donor_df['Цена'][i])*((100 - discount)/100) * float(course), 0)
                     if float(price) < 3000:
                         continue
                 else:
@@ -66,10 +66,10 @@ def ironmac_check(donor_link, discount, days_delta, yandex_token, yandex_image_f
                 # main Photo + dop
                 imageUrls = []
                 if  donor_df['Фото'][i] is not None:
-                    if i == 0:
-                        origURL = "https://ironmac-kompressor.com/local/templates/ironmac/img/content/product.jpg"
-                    else:
-                        origURL = donor_df['Фото'][i]
+                    # if i == 0:
+                    #     origURL = "https://ironmac-kompressor.com/local/templates/ironmac/img/content/product.jpg"
+                    # else:
+                    origURL = donor_df['Фото'][i]
                     # origURL = origURL.replace("http://www.mkslift.ruhttp://www.mkslift.ru", "http://www.mkslift.ru")
                     filename = origURL.split('/')[-1]
                     resized_img = format_image(origURL)
@@ -132,7 +132,7 @@ def ironmac_check(donor_link, discount, days_delta, yandex_token, yandex_image_f
                         course = currencies['Valute'][valute]['Value']
                     else:
                         course = 1
-                    price = round(float(donor_df['Цена'][i])*(1 - discount/100) * float(course), 0)
+                    price = round(float(donor_df['Цена'][i])*((100 - discount)/100) * float(course), 0)
                 except:
                     continue
 
@@ -167,7 +167,7 @@ def ironmac_check(donor_link, discount, days_delta, yandex_token, yandex_image_f
 # donor_link = "https://ironmac-kompressor.com/upload/ironmac_kompressor_com.csv"
 # discount = 25
 # days_delta = 14
-# yandex_token = "y0_AgAAAAB2eAMkAAvtEgAAAAEHDYscAAAO0qWJlTtHEYrzMF1eVgrRvisOSQ"
+# yandex_token = ""
 # yandex_image_folder_path = "IronMac Main pictures"
 # annex = "<p><br/></p> <p><strong>✅✅✅✅✅ Гарантия 12 месяцев! 💫💫💫💫💫</strong></p> <p><strong>🚕🚕🚕🚕🚕 Оперативная Доставка по России Транспортными компаниями 🚛🚛🚛 Доставляем по СПб за 1 час! 🚁🚁🚁🚁🚁</strong></p> <p><strong>🔥🔥🔥🔥🔥 Добавляйте объявление в избранное что бы не потерять  🔥🔥🔥🔥🔥</strong></p> <p><strong>🔫🔨🔧 Оперативный гарантийный сервис! 🔫🔨🔧</strong></p> <p><strong>📲📲📲 Обращайтесь за помощью в сообщениях или по телефону, всегда на связи! 📞📞📞</strong></p>"
 # check_new = True
