@@ -43,8 +43,8 @@ def garopt_check(donor_link, discount, days_delta, yandex_token, yandex_image_fo
         for category in root.find('shop').find('categories').findall('category'):
             categoryID = category.attrib['id']
             categoryDict[categoryID] = category.text
-
-        print(f'Добавление новых позиций:')
+            
+        print(f'Проверка наличия новых позиций и их добавление:')
         for offer in tqdm(offer_list[:]):
             # vendorCode
             vendorCode = offer.find('vendorCode').text
@@ -127,12 +127,12 @@ def garopt_check(donor_link, discount, days_delta, yandex_token, yandex_image_fo
 
     old_count = 0
     # Обновление существующих позиций в выгрузке
-    print(f'Обновление существующих:')
+    print("Обновление существующих позиций:")
     for i in trange(len(df)):
         vendorCode = df.loc[i, 'Id']
         # dateend = change_dateend(str(df.loc[i, 'Availability']), str(df.loc[i, 'AvitoStatus']), yesterday)
         for offer in offer_list[:]:
-            donor_id = f'{offer.find('vendorCode').text}'
+            donor_id = f'{offer.find("vendorCode").text}'
             
             if vendorCode == donor_id:
                 # цена

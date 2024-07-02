@@ -36,10 +36,10 @@ def ironmac_check(donor_link, discount, days_delta, yandex_token, yandex_image_f
 
     # добавление новых позиций
     if check_new:
-        print('Добавление новых позиций')
+        print(f'Проверка наличия новых позиций и их добавление:')
         for i in trange(len(donor_df)):
             # vendorCode
-            vendorCode = f'ironmac-{donor_df['id'][i]}'
+            vendorCode = f'ironmac-{donor_df["id"][i]}'
             if vendorCode not in unique_Ids.values:
                 # print(vendorCode)
                 new_index = len(df.index)
@@ -58,10 +58,10 @@ def ironmac_check(donor_link, discount, days_delta, yandex_token, yandex_image_f
                     price = -1
                 
                 # title
-                title = f'{donor_df['Наименование'][i]}'
+                title = f'{donor_df["Наименование"][i]}'
 
                 # category
-                category = f'{donor_df['Раздел'][i]}'
+                category = f'{donor_df["Раздел"][i]}'
 
                 # main Photo + dop
                 imageUrls = []
@@ -117,22 +117,21 @@ def ironmac_check(donor_link, discount, days_delta, yandex_token, yandex_image_f
 
     old_count = 0
     # Обновление существующих позиций в выгрузке
-    print('Обновление существующих')
+    print('Обновление существующих позиций:')
     for i in trange(len(df)):
         vendorCode = df.loc[i, 'Id']
         # dateend = change_dateend(str(df.loc[i, 'Availability']), str(df.loc[i, 'AvitoStatus']), yesterday)
         for j in range(len(donor_df)):
-            donor_id = f'ironmac-{donor_df['id'][j]}'
-            
+            donor_id = f'ironmac-{donor_df["id"][j]}'
             if vendorCode == donor_id:
                 # цена
                 try:
-                    valute = donor_df['Валюта'][i]
+                    valute = donor_df['Валюта'][j]
                     if valute != "RUB":
                         course = currencies['Valute'][valute]['Value']
                     else:
                         course = 1
-                    price = round(float(donor_df['Цена'][i])*((100 - discount)/100) * float(course), 0)
+                    price = round(float(donor_df['Цена'][j])*((100 - discount)/100) * float(course), 0)
                 except:
                     continue
 
