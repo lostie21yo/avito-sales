@@ -28,7 +28,8 @@ def mkslift_check(donor_link, discount, days_delta, yandex_token, yandex_image_f
     df = pd.read_excel(f"{excel_file_name}.xlsx", sheet_name='Sheet1')
     unique_Ids = df["Id"]
 
-    yesterday = str((datetime.now() - timedelta(days=1)).date().strftime("%d.%m.%Y"))
+    # yesterday = str((datetime.now() - timedelta(days=1)).date().strftime("%d.%m.%Y"))
+    yesterday = (datetime.now() - timedelta(days=1)).date().strftime("%Y-%m-%d")
 
     # для работы с Yandex.Диском
     headers = {'Content-Type': 'application/json', 'Accept': 'application/json', 'Authorization': f'OAuth {yandex_token}'}
@@ -152,7 +153,7 @@ def mkslift_check(donor_link, discount, days_delta, yandex_token, yandex_image_f
                 new_count += 1
                 # периодический сейв
                 if new_count!=0 and (new_count%periodic_save_delta == 0 or new_count == len(offer_list)):
-                    df['DateEnd'] = pd.to_datetime(df['DateEnd']).dt.date
+                    # df['DateEnd'] = pd.to_datetime(df['DateEnd']).dt.date
                     df = df.drop_duplicates(subset=["Id"], keep='last')
                     df.to_excel(f'{excel_file_name}.xlsx', sheet_name='Sheet1', index=False)
 
@@ -193,7 +194,8 @@ def mkslift_check(donor_link, discount, days_delta, yandex_token, yandex_image_f
         
 
     # обработка перед финальным сохранением и сохранение
-    df['DateEnd'] = pd.to_datetime(df['DateEnd']).dt.date
+    # df['DateEnd'] = pd.to_datetime(df['DateEnd']).dt.date
+    df['DateEnd'] = pd.to_datetime(df.DateEnd).dt.strftime('%Y-%m-%d')
     df = df.drop_duplicates(subset=["Id"], keep='last')
     df.to_excel(f'{excel_file_name}.xlsx', sheet_name='Sheet1', index=False)
     upload_file(f'{excel_file_name}.xlsx', f'/{excel_file_name}.xlsx', headers, replace=True)

@@ -19,7 +19,7 @@ from donor_checkers.utils.change_dateend import change_dateend
 
 def garopt_check(donor_link, discount, days_delta, yandex_token, yandex_image_folder_path, annex, check_new, excel_file_name, currencies, periodic_save_delta):
     
-    yesterday = str((datetime.now() - timedelta(days=1)).date().strftime("%d.%m.%Y"))
+    yesterday = (datetime.now() - timedelta(days=1)).date().strftime("%Y-%m-%d")
 
     # для работы с Yandex.Диском
     headers = {'Content-Type': 'application/json', 'Accept': 'application/json', 'Authorization': f'OAuth {yandex_token}'}
@@ -121,7 +121,7 @@ def garopt_check(donor_link, discount, days_delta, yandex_token, yandex_image_fo
                 df.loc[new_index, 'ImageUrls'] = imageUrls
                 # периодический сейв
                 if new_count!=0 and (new_count%periodic_save_delta == 0 or new_count == len(offer_list)):
-                    df['DateEnd'] = pd.to_datetime(df['DateEnd']).dt.date
+                    # df['DateEnd'] = pd.to_datetime(df['DateEnd']).dt.date
                     df = df.drop_duplicates(subset=["Id"], keep='last')
                     df.to_excel(f'{excel_file_name}.xlsx', sheet_name='Sheet1', index=False)
 
@@ -166,7 +166,10 @@ def garopt_check(donor_link, discount, days_delta, yandex_token, yandex_image_fo
                 break
         
     # обработка перед финальным сохранением и сохранение
-    df['DateEnd'] = pd.to_datetime(df['DateEnd']).dt.date
+    # df['DateEnd'] = pd.to_datetime(df['DateEnd']).dt.date
+    df['DateEnd'] = pd.to_datetime(df.DateEnd).dt.strftime('%Y-%m-%d')
+    df['DateEnd'] = pd.to_datetime(df.DateEnd).dt.strftime('%Y-%m-%d')
+
     df = df.drop_duplicates(subset=["Id"], keep='last')
     df.to_excel(f'{excel_file_name}.xlsx', sheet_name='Sheet1', index=False)
     upload_file(f'{excel_file_name}.xlsx', f'/{excel_file_name}.xlsx', headers, replace=True)
