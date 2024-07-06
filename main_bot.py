@@ -6,6 +6,7 @@ import schedule
 import requests
 
 # my modules
+from donor_checkers.utils.yandex_api import download_file
 from donor_checkers.mkslift_checker import mkslift_check
 from donor_checkers.ironmac_checker import ironmac_check
 from donor_checkers.garopt_checker import garopt_check
@@ -44,33 +45,36 @@ def CheckUp():
             data = account['data']
             yandex_token = data['yandex_token']
             annex = data['annex']
-            excel_file_name = data['excel_file_name'] + appendix
+            excel_file_name = data['excel_file_name']
+            # скачивание последних версий выгрузок с яндекс диска
+            headers = {'Content-Type': 'application/json', 'Accept': 'application/json', 'Authorization': f'OAuth {yandex_token}'}
+            download_file(f'{excel_file_name}.xlsx', headers)
             for donor in data['donors']:
                 # mkslift
                 if donor['name'] == 'mkslift':
                     print(f"Account name: {account['name']}, donor name: {donor['name']}, discount: {donor['discount']}")
                     daily_report['mkslift'] = mkslift_check(donor['link'], donor['discount'], donor['days_delta'], yandex_token, 
-                                donor['yandex_image_folder_path'], annex, check_new, excel_file_name, currencies, periodic_save_delta)
+                                donor['yandex_image_folder_path'], annex, check_new, excel_file_name + appendix, currencies, periodic_save_delta)
                 # ironmac
                 if donor['name'] == 'ironmac':
                     print(f"Account name: {account['name']}, donor name: {donor['name']}, discount: {donor['discount']}")
                     daily_report['ironmac'] = ironmac_check(donor['link'], donor['discount'], donor['days_delta'], yandex_token, 
-                                donor['yandex_image_folder_path'], annex, check_new, excel_file_name, currencies, periodic_save_delta)
+                                donor['yandex_image_folder_path'], annex, check_new, excel_file_name + appendix, currencies, periodic_save_delta)
                 # garopt1
                 if donor['name'] == 'garopt1':
                     print(f"Account name: {account['name']}, donor name: {donor['name']}, discount: {donor['discount']}")
                     daily_report['garopt1'] = garopt_check(donor['link'],  donor['discount'], donor['days_delta'], yandex_token, 
-                            donor['yandex_image_folder_path'], annex, check_new, excel_file_name, currencies, periodic_save_delta)
+                            donor['yandex_image_folder_path'], annex, check_new, excel_file_name + appendix, currencies, periodic_save_delta)
                 # garopt2
                 if donor['name'] == 'garopt2':
                     print(f"Account name: {account['name']}, donor name: {donor['name']}, discount: {donor['discount']}")
                     daily_report['garopt2'] = garopt_check(donor['link'],  donor['discount'], donor['days_delta'], yandex_token, 
-                            donor['yandex_image_folder_path'], annex, check_new, excel_file_name, currencies, periodic_save_delta) 
+                            donor['yandex_image_folder_path'], annex, check_new, excel_file_name + appendix, currencies, periodic_save_delta) 
                 # garopt3
                 if donor['name'] == 'garopt3':
                     print(f"Account name: {account['name']}, donor name: {donor['name']}, discount: {donor['discount']}")
                     daily_report['garopt3'] = garopt_check(donor['link'],  donor['discount'], donor['days_delta'], yandex_token, 
-                            donor['yandex_image_folder_path'], annex, check_new, excel_file_name, currencies, periodic_save_delta)               
+                            donor['yandex_image_folder_path'], annex, check_new, excel_file_name + appendix, currencies, periodic_save_delta)               
         message = f"Успешное обновление выгрузки!"              
         print(message)
         requests.get(f"https://api.telegram.org/bot{bot_token}/sendMessage?chat_id={chat_id}&text={message}").json()

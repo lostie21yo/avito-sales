@@ -17,7 +17,7 @@ from donor_checkers.utils.format_image import format_image
 from donor_checkers.utils.yandex_api import get_new_link, create_folder, upload_file
 from donor_checkers.utils.change_dateend import change_dateend
 
-def garopt_check(donor_link, discount, days_delta, yandex_token, yandex_image_folder_path, annex, check_new, excel_file_name, currencies, periodic_save_delta):
+def wiederkraft_check(donor_link, discount, days_delta, yandex_token, yandex_image_folder_path, annex, check_new, excel_file_name, currencies, periodic_save_delta):
     
     yesterday = (datetime.now() - timedelta(days=1)).date().strftime("%Y-%m-%d")
 

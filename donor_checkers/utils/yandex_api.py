@@ -1,4 +1,6 @@
 import requests
+import urllib.request
+
 
 def create_folder(path, headers):
     """Создание папки. \n path: Путь к создаваемой папке."""
@@ -16,10 +18,12 @@ def upload_file(loadfile, savefile, headers, replace=False):
         else:
             print(res)
 
+def download_file(downloadfile, headers):
+    res = requests.get(f'https://cloud-api.yandex.net/v1/disk/resources/download?path={downloadfile}', headers=headers).json()
+    href = res['href']
+    urllib.request.urlretrieve(href, downloadfile)
+    
 def get_new_link(filename, yandex_folder):
     filename = fr'{filename}'
-
     new_link = f'yandex_disk://{yandex_folder}/{filename}'
-
     return new_link
-
