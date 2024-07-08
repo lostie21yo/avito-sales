@@ -25,10 +25,10 @@ def wiederkraft_check(donor_link, discount, days_delta, yandex_token, yandex_ima
     headers = {'Content-Type': 'application/json', 'Accept': 'application/json', 'Authorization': f'OAuth {yandex_token}'}
     create_folder(yandex_image_folder_path, headers) # создание папки, если ее нет
     
-    # парсим xml донора
-    xml_response = requests.get(donor_link)
-    root = ET.fromstring(xml_response.text)
-    offer_list = root.find('shop').find('offers').findall('offer')
+    # парсим сайт\ донора
+    main_r = requests.get(donor_link)
+    html = BS(main_r.content, 'html.parser')
+    print(html)
 
     # открываем xlsx файл выгрузки
     df = pd.read_excel(f"{excel_file_name}.xlsx", sheet_name='Sheet1')
