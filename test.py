@@ -1,12 +1,15 @@
-import pandas as pd
-import numpy as np
-import math
+from bs4 import BeautifulSoup as BS
+import requests
 
-# For single variable all three libraries return single boolean
-x1 = float("nan")
-x1 = float(3)
+main_r = requests.get('https://wiederkraft.ru/')
+html = BS(main_r.content, 'html.parser')
 
+for cat in html.find("ul", {"id": "secondary_menu"}).children:
+    if cat != '\n':
+        category = cat.contents[0].text
+        print(f'========== {category} ==========')
+        for subcat in cat.ul.find_all('li'):
+            subcategory = subcat.text
+            link = subcat.a['href']
+            print(f"{subcategory} - {link}")
 
-print(f"It's pd.isna: {pd.isna(x1)}")
-print(f"It's np.isnan: {np.isnan(x1)}")
-print(f"It's math.isnan: {math.isnan(x1)}")
