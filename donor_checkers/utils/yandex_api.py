@@ -19,9 +19,12 @@ def upload_file(loadfile, savefile, headers, replace=False):
             print(res)
 
 def download_file(downloadfile, headers):
-    res = requests.get(f'https://cloud-api.yandex.net/v1/disk/resources/download?path={downloadfile}', headers=headers).json()
-    href = res['href']
-    urllib.request.urlretrieve(href, downloadfile)
+    try:
+        res = requests.get(f'https://cloud-api.yandex.net/v1/disk/resources/download?path={downloadfile}', headers=headers).json()
+        href = res['href']
+        urllib.request.urlretrieve(href, downloadfile)
+    except:
+        print("На диске нет такого файла")
     
 def get_new_link(filename, yandex_folder):
     filename = fr'{filename}'

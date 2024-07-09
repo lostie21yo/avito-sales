@@ -31,7 +31,7 @@ def garopt_check(donor_link, discount, days_delta, yandex_token, yandex_image_fo
     offer_list = root.find('shop').find('offers').findall('offer')
 
     # открываем xlsx файл выгрузки
-    df = pd.read_excel(f"{excel_file_name}.xlsx", sheet_name='Sheet1')
+    df = pd.read_excel(f"{excel_file_name}.xlsx", sheet_name='Объявления')
     unique_Ids = df["Id"]
 
     new_count = 0
@@ -107,9 +107,12 @@ def garopt_check(donor_link, discount, days_delta, yandex_token, yandex_image_fo
                 #     description = f"{description_long}\n{params}\n\n{annex}"
                 # else:
                 if offer.find('description') is not None:
-                    description = f"{offer.find('description').text}\n{annex}"
+                    description = f"{title}\n{offer.find('description').text}\n{annex}"
                 else:
-                    description = f"{annex}"
+                    description = f"{title}\n{annex}"
+
+                # наличие
+                availability = "В наличии"
 
                 # запись
                 new_count += 1
@@ -119,11 +122,12 @@ def garopt_check(donor_link, discount, days_delta, yandex_token, yandex_image_fo
                 df.loc[new_index, 'Category'] = category
                 df.loc[new_index, 'Description'] = description
                 df.loc[new_index, 'ImageUrls'] = imageUrls
+                df.loc[new_index, 'Availability'] = availability
                 # периодический сейв
                 if new_count!=0 and (new_count%periodic_save_delta == 0 or new_count == len(offer_list)):
                     # df['DateEnd'] = pd.to_datetime(df['DateEnd']).dt.date
                     df = df.drop_duplicates(subset=["Id"], keep='last')
-                    df.to_excel(f'{excel_file_name}.xlsx', sheet_name='Sheet1', index=False)
+                    df.to_excel(f'{excel_file_name}.xlsx', sheet_name='Объявления', index=False)
 
     old_count = 0
     # Обновление существующих позиций в выгрузке
@@ -147,20 +151,20 @@ def garopt_check(donor_link, discount, days_delta, yandex_token, yandex_image_fo
                     continue
                 
                 # наличие
-                if float(price) < 0 or float(price) > 3000: 
-                    if offer.attrib['available'] == "true":
-                        availability = "В наличии"
-                    if offer.attrib['available'] == "false":
-                        availability = "Нет в наличии"
-                else: # делаем позиции неактивными с ценой меньше 3к
-                    availability = "Нет в наличии"
+                # if float(price) < 0 or float(price) > 3000: 
+                #     if offer.attrib['available'] == "true":
+                #         availability = "В наличии"
+                #     if offer.attrib['available'] == "false":
+                #         availability = "Нет в наличии"
+                # else: # делаем позиции неактивными с ценой меньше 3к
+                #     availability = "Нет в наличии"
 
                 # DateEnd
-                dateend = change_dateend(availability, str(df.loc[i, 'AvitoStatus']), yesterday)
+                dateend = change_dateend(str(df.loc[i, 'Availability']), str(df.loc[i, 'AvitoStatus']), yesterday)
 
                 # запись
                 df.loc[i, 'Price'] = price
-                df.loc[i, 'Availability'] = availability
+                # df.loc[i, 'Availability'] = availability
                 df.loc[i, 'DateEnd'] = dateend
                 old_count += 1
                 break
@@ -168,7 +172,7 @@ def garopt_check(donor_link, discount, days_delta, yandex_token, yandex_image_fo
     # обработка перед финальным сохранением и сохранение
     df['DateEnd'] = pd.to_datetime(df.DateEnd).dt.strftime('%Y-%m-%d')
     df = df.drop_duplicates(subset=["Id"], keep='last')
-    df.to_excel(f'{excel_file_name}.xlsx', sheet_name='Sheet1', index=False)
+    df.to_excel(f'{excel_file_name}.xlsx', sheet_name='Объявления', index=False)
     upload_file(f'{excel_file_name}.xlsx', f'/{excel_file_name}.xlsx', headers, replace=True)
 
     return {'new': new_count, 'old': old_count}

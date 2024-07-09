@@ -74,7 +74,12 @@ def CheckUp():
                 if donor['name'] == 'garopt3':
                     print(f"Account name: {account['name']}, donor name: {donor['name']}, discount: {donor['discount']}")
                     daily_report['garopt3'] = garopt_check(donor['link'],  donor['discount'], donor['days_delta'], yandex_token, 
-                            donor['yandex_image_folder_path'], annex, check_new, excel_file_name + appendix, currencies, periodic_save_delta)               
+                            donor['yandex_image_folder_path'], annex, check_new, excel_file_name + appendix, currencies, periodic_save_delta)
+                # WiederKraft
+                # if donor['name'] == 'garopt3':
+                #     print(f"Account name: {account['name']}, donor name: {donor['name']}, discount: {donor['discount']}")
+                #     daily_report['garopt3'] = garopt_check(donor['link'],  donor['discount'], donor['days_delta'], yandex_token, 
+                #             donor['yandex_image_folder_path'], annex, check_new, excel_file_name + appendix, currencies, periodic_save_delta)              
         message = f"Успешное обновление выгрузки!"              
         print(message)
         requests.get(f"https://api.telegram.org/bot{bot_token}/sendMessage?chat_id={chat_id}&text={message}").json()

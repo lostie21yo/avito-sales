@@ -99,7 +99,7 @@ def ironmac_check(donor_link, discount, days_delta, yandex_token, yandex_image_f
                 #     description_long = '\n'.join(description_long)
                 #     description = f"{description_long}\n{params}\n\n{annex}"
                 # else:
-                    description = f"{donor_df['Описание'][i]}\n{annex}"
+                    description = f"{title}\n{donor_df['Описание'][i]}\n{annex}"
 
                 # запись
                 new_count += 1

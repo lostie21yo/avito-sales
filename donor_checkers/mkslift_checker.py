@@ -109,9 +109,9 @@ def mkslift_check(donor_link, discount, days_delta, yandex_token, yandex_image_f
                         sentence = re.sub("\n ", "\n", sentence)
                         description_long.append(sentence.strip())
                     description_long = '\n'.join(description_long)
-                    description = f"{description_long}\n{params}\n\n{annex}"
+                    description = f"{title}\n{description_long}\n{params}\n\n{annex}"
                 else:
-                    description = f"{params}\n{annex}"
+                    description = f"{title}\n{params}\n{annex}"
 
                 # main Photo + dop
                 imageUrls = []
