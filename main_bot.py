@@ -52,27 +52,27 @@ def CheckUp():
             for donor in data['donors']:
                 # mkslift
                 if donor['name'] == 'mkslift':
-                    print(f"Account name: {account['name']}, donor name: {donor['name']}, discount: {donor['discount']}")
+                    print(f"\n-=== Account name: {account['name']}, donor name: {donor['name']}, discount: {donor['discount']}, file: {excel_file_name} ===-")
                     daily_report['mkslift'] = mkslift_check(donor['link'], donor['discount'], donor['days_delta'], yandex_token, 
                                 donor['yandex_image_folder_path'], annex, check_new, excel_file_name + appendix, currencies, periodic_save_delta)
                 # ironmac
                 if donor['name'] == 'ironmac':
-                    print(f"Account name: {account['name']}, donor name: {donor['name']}, discount: {donor['discount']}")
+                    print(f"\n-=== Account name: {account['name']}, donor name: {donor['name']}, discount: {donor['discount']}, file: {excel_file_name} ===-")
                     daily_report['ironmac'] = ironmac_check(donor['link'], donor['discount'], donor['days_delta'], yandex_token, 
                                 donor['yandex_image_folder_path'], annex, check_new, excel_file_name + appendix, currencies, periodic_save_delta)
                 # garopt1
                 if donor['name'] == 'garopt1':
-                    print(f"Account name: {account['name']}, donor name: {donor['name']}, discount: {donor['discount']}")
+                    print(f"\n-=== Account name: {account['name']}, donor name: {donor['name']}, discount: {donor['discount']}, file: {excel_file_name} ===-")
                     daily_report['garopt1'] = garopt_check(donor['link'],  donor['discount'], donor['days_delta'], yandex_token, 
                             donor['yandex_image_folder_path'], annex, check_new, excel_file_name + appendix, currencies, periodic_save_delta)
                 # garopt2
                 if donor['name'] == 'garopt2':
-                    print(f"Account name: {account['name']}, donor name: {donor['name']}, discount: {donor['discount']}")
+                    print(f"\n-=== Account name: {account['name']}, donor name: {donor['name']}, discount: {donor['discount']}, file: {excel_file_name} ===-")
                     daily_report['garopt2'] = garopt_check(donor['link'],  donor['discount'], donor['days_delta'], yandex_token, 
                             donor['yandex_image_folder_path'], annex, check_new, excel_file_name + appendix, currencies, periodic_save_delta) 
                 # garopt3
                 if donor['name'] == 'garopt3':
-                    print(f"Account name: {account['name']}, donor name: {donor['name']}, discount: {donor['discount']}")
+                    print(f"\n-=== Account name: {account['name']}, donor name: {donor['name']}, discount: {donor['discount']}, file: {excel_file_name} ===-")
                     daily_report['garopt3'] = garopt_check(donor['link'],  donor['discount'], donor['days_delta'], yandex_token, 
                             donor['yandex_image_folder_path'], annex, check_new, excel_file_name + appendix, currencies, periodic_save_delta)
                 # WiederKraft
@@ -80,7 +80,7 @@ def CheckUp():
                 #     print(f"Account name: {account['name']}, donor name: {donor['name']}, discount: {donor['discount']}")
                 #     daily_report['garopt3'] = garopt_check(donor['link'],  donor['discount'], donor['days_delta'], yandex_token, 
                 #             donor['yandex_image_folder_path'], annex, check_new, excel_file_name + appendix, currencies, periodic_save_delta)              
-        message = f"Успешное обновление выгрузки!"              
+        message = f"\nУспешное обновление выгрузки!"              
         print(message)
         requests.get(f"https://api.telegram.org/bot{bot_token}/sendMessage?chat_id={chat_id}&text={message}").json()
 
@@ -100,8 +100,10 @@ def CheckUp():
             requests.get(f"https://api.telegram.org/bot{bot_token}/sendMessage?chat_id={chat_id}&text={message}").json()
             CheckUp()
     finally:
-        print(daily_report)
-        print(f"Следующая проверка завтра в {start_time}")
+        print(f'Результаты:')
+        for key in daily_report:
+            print(f'{key}: новые - {daily_report[key]['new']}, старые - {daily_report[key]['old']}')
+        print(f"\nСледующая проверка завтра в {start_time}")
 
 CheckUp()           
 schedule.every().day.at(start_time).do(CheckUp) 

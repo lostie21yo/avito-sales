@@ -6,10 +6,10 @@ inactive_phrases = ("Нет в наличии", "Снято с публикац�
 def change_dateend(isAvailable, avitoStatus, yesterday):
     try:
         if isAvailable in active_phrases or avitoStatus in active_phrases:
-            dateend = ""
+            dateend = float("nan")
             
         if isAvailable in inactive_phrases or avitoStatus in inactive_phrases:
             dateend = yesterday
     except:
-        dateend = ""
+        dateend = float("nan")
     return dateend

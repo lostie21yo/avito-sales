@@ -34,6 +34,8 @@ def garopt_check(donor_link, discount, days_delta, yandex_token, yandex_image_fo
     df = pd.read_excel(f"{excel_file_name}.xlsx", sheet_name='Объявления')
     unique_Ids = df["Id"]
 
+    annex = annex.split("\nТЕЛО ОПИСАНИЯ\n")
+
     new_count = 0
 
     # добавление новых позиций
@@ -106,10 +108,11 @@ def garopt_check(donor_link, discount, days_delta, yandex_token, yandex_image_fo
                 #     description_long = '\n'.join(description_long)
                 #     description = f"{description_long}\n{params}\n\n{annex}"
                 # else:
+                title = offer.find('name').text
                 if offer.find('description') is not None:
-                    description = f"{title}\n{offer.find('description').text}\n{annex}"
+                    description = f"{title}\n{annex[0]}{offer.find('description').text}\n{annex[1]}"
                 else:
-                    description = f"{title}\n{annex}"
+                    description = f"{title}\n{annex[0]}\n{annex[1]}"
 
                 # наличие
                 availability = "В наличии"
@@ -134,7 +137,8 @@ def garopt_check(donor_link, discount, days_delta, yandex_token, yandex_image_fo
     print("Обновление существующих позиций:")
     for i in trange(len(df)):
         vendorCode = df.loc[i, 'Id']
-        # dateend = change_dateend(str(df.loc[i, 'Availability']), str(df.loc[i, 'AvitoStatus']), yesterday)
+        dateend = change_dateend(str(df.loc[i, 'Availability']), str(df.loc[i, 'AvitoStatus']), yesterday)
+        df.loc[i, 'DateEnd'] = dateend
         for offer in offer_list[:]:
             donor_id = f'{offer.find("vendorCode").text}'
             
@@ -149,7 +153,14 @@ def garopt_check(donor_link, discount, days_delta, yandex_token, yandex_image_fo
                     price = round(float(offer.find('price').text)*((100 - discount)/100) * float(course), 0)
                 except:
                     continue
-                
+                    
+                # # desc temporary
+                # title = offer.find('name').text
+                # if offer.find('description') is not None:
+                #     description = f"{title}\n{annex[0]}\n{offer.find('description').text}\n{annex[1]}"
+                # else:
+                #     description = f"{title}\n{annex[0]}\n{annex[1]}"
+
                 # наличие
                 # if float(price) < 0 or float(price) > 3000: 
                 #     if offer.attrib['available'] == "true":
@@ -160,12 +171,12 @@ def garopt_check(donor_link, discount, days_delta, yandex_token, yandex_image_fo
                 #     availability = "Нет в наличии"
 
                 # DateEnd
-                dateend = change_dateend(str(df.loc[i, 'Availability']), str(df.loc[i, 'AvitoStatus']), yesterday)
+                # dateend = change_dateend(str(df.loc[i, 'Availability']), str(df.loc[i, 'AvitoStatus']), yesterday)
 
                 # запись
                 df.loc[i, 'Price'] = price
+                # df.loc[i, 'Description'] = description
                 # df.loc[i, 'Availability'] = availability
-                df.loc[i, 'DateEnd'] = dateend
                 old_count += 1
                 break
         
