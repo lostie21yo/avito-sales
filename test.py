@@ -12,4 +12,22 @@ for cat in html.find("ul", {"id": "secondary_menu"}).children:
             subcategory = subcat.text
             link = subcat.a['href']
             print(f"{subcategory} - {link}")
+            req = requests.get(link)
+            product_page = BS(req.content, 'html.parser')
+            pages = (link)
+            try:
+                pagination = product_page.find("ul", {"class": "page-numbers"})
+                for a in pagination.find_all('a', href=True):
+                    pages.add(a['href'])
+            except:
+                pass
+            print(pages)
 
+            # for page in pages:
+            #     if page != '\n':
+            #         print(page)
+
+            print()
+            # for page_number in range(page_count):
+            #     link = f"{link}/page/{page_number}"
+            #     print(link)
