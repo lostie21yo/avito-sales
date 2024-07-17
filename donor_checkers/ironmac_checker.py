@@ -89,17 +89,23 @@ def ironmac_check(donor_link, discount, days_delta, yandex_token, yandex_image_f
                 imageUrls = " | ".join(imageUrls)
 
                 # description
-                if donor_df['Описание'][i] is not None:
-                #     description_long = []
-                #     for sentence in elem.find('description_long').text.split('.'):
-                #         sentence = re.sub(" +", " ", sentence)
-                #         sentence = re.sub("\n+", "\n", sentence)
-                #         sentence = re.sub("\n ", "\n", sentence)
-                #         description_long.append(sentence.strip())
-                #     description_long = '\n'.join(description_long)
-                #     description = f"{description_long}\n{params}\n\n{annex}"
-                # else:
-                    description = f"{title}\n{donor_df['Описание'][i]}\n{annex}"
+                specifications = []
+                if not pd.isna(donor_df['Анонс'][j]):
+                    html_table = BS(donor_df['Анонс'][j], 'html.parser')
+                    rows = html_table.find_all("tr")
+                    for tr in rows:
+                        cols = tr.find_all("td")
+                        if len(cols) == 2:
+                            line = []
+                            for col in cols:
+                                line.append(col.text.strip())
+                            line = ': '.join(line)
+                            specifications.append(line)
+                    specifications = '\n'.join(specifications) + '\n\n'
+                else:
+                    specifications = ''
+
+                description = f"{df.loc[i, 'Title']}\n\n{specifications}{donor_df['Описание'][j]}\n\n{annex}"
 
                 # запись
                 new_count += 1
@@ -150,7 +156,7 @@ def ironmac_check(donor_link, discount, days_delta, yandex_token, yandex_image_f
                 df.loc[i, 'Price'] = price
                 df.loc[i, 'Availability'] = availability
                 df.loc[i, 'DateEnd'] = dateend
-                old_count += 1
+                old_count += 1 
                 break
         
     # обработка перед финальным сохранением и сохранение
@@ -161,15 +167,3 @@ def ironmac_check(donor_link, discount, days_delta, yandex_token, yandex_image_f
     upload_file(f'{excel_file_name}.xlsx', f'/{excel_file_name}.xlsx', headers, replace=True)
 
     return {'new': new_count, 'old': old_count}
-
-# currencies = requests.get('https://www.cbr-xml-daily.ru/daily_json.js').json()
-# donor_link = "https://ironmac-kompressor.com/upload/ironmac_kompressor_com.csv"
-# discount = 25
-# days_delta = 14
-# yandex_token = ""
-# yandex_image_folder_path = "IronMac Main pictures"
-# annex = "<p><br/></p> <p><strong>✅✅✅✅✅ Гарантия 12 месяцев! 💫💫💫💫💫</strong></p> <p><strong>🚕🚕🚕🚕🚕 Оперативная Доставка по России Транспортными компаниями 🚛🚛🚛 Доставляем по СПб за 1 час! 🚁🚁🚁🚁🚁</strong></p> <p><strong>🔥🔥🔥🔥🔥 Добавляйте объявление в избранное что бы не потерять  🔥🔥🔥🔥🔥</strong></p> <p><strong>🔫🔨🔧 Оперативный гарантийный сервис! 🔫🔨🔧</strong></p> <p><strong>📲📲📲 Обращайтесь за помощью в сообщениях или по телефону, всегда на связи! 📞📞📞</strong></p>"
-# check_new = True
-# excel_file_name = 'Выгрузка Промторг'
-
-# ironmac_check(donor_link, discount, days_delta, yandex_token, yandex_image_folder_path, annex, check_new, excel_file_name, currencies, 15)

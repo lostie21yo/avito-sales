@@ -1,33 +1,25 @@
-from bs4 import BeautifulSoup as BS
+import os
+import sys
+import re
+import cv2
+import time
 import requests
+import pandas as pd
+from datetime import *
+import xml.etree.ElementTree as ET
+from bs4 import BeautifulSoup as BS
+from tqdm import tqdm, trange
+from PIL import Image
+from urllib.request import urlopen
 
-main_r = requests.get('https://wiederkraft.ru/')
-html = BS(main_r.content, 'html.parser')
 
-for cat in html.find("ul", {"id": "secondary_menu"}).children:
-    if cat != '\n':
-        category = cat.contents[0].text
-        print(f'========== {category} ==========')
-        for subcat in cat.ul.find_all('li'):
-            subcategory = subcat.text
-            link = subcat.a['href']
-            print(f"{subcategory} - {link}")
-            req = requests.get(link)
-            product_page = BS(req.content, 'html.parser')
-            pages = (link)
-            try:
-                pagination = product_page.find("ul", {"class": "page-numbers"})
-                for a in pagination.find_all('a', href=True):
-                    pages.add(a['href'])
-            except:
-                pass
-            print(pages)
+new_count = 0
+first_page = requests.get(f"https://wiederkraft.ru/shop/page/{1}/")
+html = BS(first_page.content, 'html.parser')
 
-            # for page in pages:
-            #     if page != '\n':
-            #         print(page)
+max_page_number = 0
+for product in html.find_all("a", {"class": "page-numbers"}):
+    if product.text.isdigit() and int(product.text) > max_page_number:
+        max_page_number = int(product.text)
 
-            print()
-            # for page_number in range(page_count):
-            #     link = f"{link}/page/{page_number}"
-            #     print(link)
+print(max_page_number)

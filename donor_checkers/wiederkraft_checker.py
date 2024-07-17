@@ -25,145 +25,117 @@ def wiederkraft_check(donor_link, discount, days_delta, yandex_token, yandex_ima
     headers = {'Content-Type': 'application/json', 'Accept': 'application/json', 'Authorization': f'OAuth {yandex_token}'}
     create_folder(yandex_image_folder_path, headers) # создание папки, если ее нет
     
-    # парсим сайт\ донора
-    main_r = requests.get(donor_link)
-    html = BS(main_r.content, 'html.parser')
-    print(html)
-
     # открываем xlsx файл выгрузки
     df = pd.read_excel(f"{excel_file_name}.xlsx", sheet_name='Sheet1')
     unique_Ids = df["Id"]
+
+    # выявление последней страницы
+    first_page = requests.get(f"{donor_link}/{1}/")
+    html = BS(first_page.content, 'html.parser')
+    max_page_number = 0
+    for product in html.find_all("a", {"class": "page-numbers"}):
+        if product.text.isdigit() and int(product.text) > max_page_number:
+            max_page_number = int(product.text)
 
     new_count = 0
 
     # добавление новых позиций
     if check_new:
-        # загрузка категорий
-        categoryDict = {}
-        for category in root.find('shop').find('categories').findall('category'):
-            categoryID = category.attrib['id']
-            categoryDict[categoryID] = category.text
-            
-        print(f'Проверка наличия новых позиций и их добавление:')
-        for offer in tqdm(offer_list[:]):
-            # vendorCode
-            vendorCode = offer.find('vendorCode').text
-            if vendorCode not in unique_Ids.values:
-                new_index = len(df.index)
-                
-                # price
-                try:
-                    valute = offer.find('currencyId').text
-                    if valute != "RUB":
-                        course = currencies['Valute'][valute]['Value']
-                    else:
-                        course = 1
-                    price = round(float(offer.find('price').text)*((100 - discount)/100) * float(course), 0) 
-                    if float(price) < 3000:
-                        continue
-                except:
-                    price = -1
-                
-                # title
-                title = offer.find('name').text
+        for i in trange(max_page_number):
+            page = requests.get(f"{donor_link}/{i+1}/")
+            html = BS(page.content, 'html.parser')
+            try:
+                for product in html.find("ul", {"class": "products"}).children:
+                    if product != '\n':
+                        new_index = len(df.index)
 
-                # category
-                categoryID = offer.find('categoryId').text
-                try:
-                    category = categoryDict[categoryID]
-                except:
-                    category = ""
+                        # страница продукта
+                        product_page = requests.get(product.a['href'])
+                        product_html = BS(product_page.content, 'html.parser')
+                        
+                        # цена
+                        price = float(''.join(re.findall(r'\d+', product_html.find("bdi").text)))
 
-                # main Photo + dop
-                imageUrls = []
-                pictures = offer.findall('picture')
-                try:
-                    for p in range(len(pictures)):
-                        if p == 0:
-                            origURL = pictures[p].text
+                        # артикул
+                        try:
+                            vendorCode = product_html.find("span", {"class": "sku"}).text
+                        except:
+                            vendorCode = "no data"
+
+                        # title
+                        title = product_html.find("h1", {"class": "product_title entry-title"}).text
+                        
+                        # получаем категории
+                        category = []
+                        for cat in product_html.find("nav", {"class": "woocommerce-breadcrumb"}).children:
+                            category.append(cat.string)
+                        category = category[1:-1]
+                        while len(category) < 3:
+                            category.append('')
+                        # category = ' | '.join(category[1:-1])
+
+                        # описание 
+                        description = []
+                        page_description = product_html.find("div", {"id": "tab-description"}).stripped_strings
+                        for string in page_description:
+                            description.append(string)
+                        try:
+                            additional_info = product_html.find("div", {"id": "tab-additional_information"}).table.children
+                            for line in additional_info:
+                                string = line.get_text().strip().replace("\n", " ")
+                                description.append(string)
+                        except:
+                            pass
+                        description = '\n'.join(description).replace("\n\n", "\n")
+                        description = f"{title}\n{description}\n{annex}"
+
+                        # картинки
+                        imageUrls = []
+                        try:
+                            images = product_html.find("figure", {"class": "woocommerce-product-gallery__wrapper swiper-wrapper"}).find_all("div")
+                            for div in images:
+                                imageUrls.append(div.a["href"])
+                            
+                            origURL = imageUrls[0]
                             filename = origURL.split('/')[-1]
                             resized_img = format_image(origURL)
                             cv2.imwrite(filename, resized_img)
                             upload_file(filename, f'{yandex_image_folder_path}/{filename}', headers, True)
                             os.remove(filename)
                             new_URL = get_new_link(filename, yandex_image_folder_path)
-                            imageUrls.append(new_URL) # главная картинка в формате 4:3
-                        else:
-                            imageUrls.append(pictures[p].text)
-                except:
-                    imageUrls.append('invalid link') 
-                finally:
-                    imageUrls = " | ".join(imageUrls)
+                            imageUrls[0] = new_URL # главная картинка в формате 4:3
+                            imageUrls = " | ".join(imageUrls)
+                        except:
+                            imageUrls = 'no data'
 
-                # description
-                # if not pd.isna(donor_df['Описание'][i]):
-                #     description_long = []
-                #     for sentence in elem.find('description_long').text.split('.'):
-                #         sentence = re.sub(" +", " ", sentence)
-                #         sentence = re.sub("\n+", "\n", sentence)
-                #         sentence = re.sub("\n ", "\n", sentence)
-                #         description_long.append(sentence.strip())
-                #     description_long = '\n'.join(description_long)
-                #     description = f"{description_long}\n{params}\n\n{annex}"
-                # else:
-                if offer.find('description') is not None:
-                    description = f"{offer.find('description').text}\n{annex}"
-                else:
-                    description = f"{annex}"
-
-                # запись
-                new_count += 1
-                df.loc[new_index, 'Id'] = vendorCode
-                df.loc[new_index, 'Title'] = title
-                df.loc[new_index, 'Price'] = price
-                df.loc[new_index, 'Category'] = category
-                df.loc[new_index, 'Description'] = description
-                df.loc[new_index, 'ImageUrls'] = imageUrls
-                # периодический сейв
-                if new_count!=0 and (new_count%periodic_save_delta == 0 or new_count == len(offer_list)):
-                    # df['DateEnd'] = pd.to_datetime(df['DateEnd']).dt.date
-                    df = df.drop_duplicates(subset=["Id"], keep='last')
-                    df.to_excel(f'{excel_file_name}.xlsx', sheet_name='Sheet1', index=False)
+                        # запись
+                        new_count += 1
+                        df.loc[new_index, 'Id'] = vendorCode
+                        df.loc[new_index, 'Title'] = title
+                        df.loc[new_index, 'Price'] = price
+                        df.loc[new_index, 'Category'] = category[0]
+                        df.loc[new_index, 'GoodsType'] = category[1]
+                        df.loc[new_index, 'ProductType'] = category[2]
+                        df.loc[new_index, 'Description'] = description
+                        df.loc[new_index, 'ImageUrls'] = imageUrls
+                        # периодический сейв
+                        if new_count!=0 and (new_count%periodic_save_delta == 0):
+                            print('saved 15')
+                            df = df.drop_duplicates(subset=["Id"], keep='last')
+                            df.to_excel(f'{excel_file_name}.xlsx', sheet_name='Sheet1', index=False)
+            except Exception as e:
+                print(e)
+                break
 
     old_count = 0
     # Обновление существующих позиций в выгрузке
-    print("Обновление существующих позиций:")
-    for i in trange(len(df)):
-        vendorCode = df.loc[i, 'Id']
-        # dateend = change_dateend(str(df.loc[i, 'Availability']), str(df.loc[i, 'AvitoStatus']), yesterday)
-        for offer in offer_list[:]:
-            donor_id = f'{offer.find("vendorCode").text}'
-            
-            if vendorCode == donor_id:
-                # цена
-                try:
-                    valute = offer.find('currencyId').text
-                    if valute != "RUB":
-                        course = currencies['Valute'][valute]['Value']
-                    else:
-                        course = 1
-                    price = round(float(offer.find('price').text)*((100 - discount)/100) * float(course), 0)
-                except:
-                    continue
-                
-                # наличие
-                if float(price) < 0 or float(price) > 3000: 
-                    if offer.attrib['available'] == "true":
-                        availability = "В наличии"
-                    if offer.attrib['available'] == "false":
-                        availability = "Нет в наличии"
-                else: # делаем позиции неактивными с ценой меньше 3к
-                    availability = "Нет в наличии"
+    # print("Обновление существующих позиций:")
+    # for i in trange(len(df)):
+    #     # description = f"{df.loc[i, 'Title']}\n{df.loc[i, 'Description']}\n{annex}"
 
-                # DateEnd
-                dateend = change_dateend(availability, str(df.loc[i, 'AvitoStatus']), yesterday)
-
-                # запись
-                df.loc[i, 'Price'] = price
-                df.loc[i, 'Availability'] = availability
-                df.loc[i, 'DateEnd'] = dateend
-                old_count += 1
-                break
+    #     # запись
+    #     old_count += 1
+    #     # df.loc[i, 'Description'] = description
         
     # обработка перед финальным сохранением и сохранение
     df['DateEnd'] = pd.to_datetime(df.DateEnd).dt.strftime('%Y-%m-%d')
@@ -173,20 +145,3 @@ def wiederkraft_check(donor_link, discount, days_delta, yandex_token, yandex_ima
 
     return {'new': new_count, 'old': old_count}
     
-    
-
-# currencies = requests.get('https://www.cbr-xml-daily.ru/daily_json.js').json()
-# donor_links = [
-#                 "https://garopt.online/yandexmarket/95605b0a-b97e-49ea-8026-82ed7393f9b8.xml", 
-#                 "https://garopt.online/yandexmarket/5e13177a-8ca9-483d-b442-b9f3a7f3fcbc.xml",
-#                 "https://garopt.online/yandexmarket/9fc40bc6-b745-48be-a919-ec4a4572b21a.xml"
-#                 ]
-# discount = 15
-# days_delta = 14
-# yandex_token = ""
-# yandex_image_folder_path = "Garopt Main pictures"
-# annex = "<p><br/></p> <p><strong>✅✅✅✅✅ Гарантия 12 месяцев! 💫💫💫💫💫</strong></p> <p><strong>🚕🚕🚕🚕🚕 Оперативная Доставка по России Транспортными компаниями 🚛🚛🚛 Доставляем по СПб за 1 час! 🚁🚁🚁🚁🚁</strong></p> <p><strong>🔥🔥🔥🔥🔥 Добавляйте объявление в избранное что бы не потерять  🔥🔥🔥🔥🔥</strong></p> <p><strong>🔫🔨🔧 Оперативный гарантийный сервис! 🔫🔨🔧</strong></p> <p><strong>📲📲📲 Обращайтесь за помощью в сообщениях или по телефону, всегда на связи! 📞📞📞</strong></p>"
-# check_new = True
-# excel_file_name = 'Выгрузка Garopt'
-
-# garopt_check(donor_links[0], discount, days_delta, yandex_token, yandex_image_folder_path, annex, check_new, excel_file_name, currencies, 15)

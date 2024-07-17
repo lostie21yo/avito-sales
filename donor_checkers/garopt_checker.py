@@ -188,20 +188,3 @@ def garopt_check(donor_link, discount, days_delta, yandex_token, yandex_image_fo
 
     return {'new': new_count, 'old': old_count}
     
-    
-
-# currencies = requests.get('https://www.cbr-xml-daily.ru/daily_json.js').json()
-# donor_links = [
-#                 "https://garopt.online/yandexmarket/95605b0a-b97e-49ea-8026-82ed7393f9b8.xml", 
-#                 "https://garopt.online/yandexmarket/5e13177a-8ca9-483d-b442-b9f3a7f3fcbc.xml",
-#                 "https://garopt.online/yandexmarket/9fc40bc6-b745-48be-a919-ec4a4572b21a.xml"
-#                 ]
-# discount = 15
-# days_delta = 14
-# yandex_token = ""
-# yandex_image_folder_path = "Garopt Main pictures"
-# annex = "<p><br/></p> <p><strong>✅✅✅✅✅ Гарантия 12 месяцев! 💫💫💫💫💫</strong></p> <p><strong>🚕🚕🚕🚕🚕 Оперативная Доставка по России Транспортными компаниями 🚛🚛🚛 Доставляем по СПб за 1 час! 🚁🚁🚁🚁🚁</strong></p> <p><strong>🔥🔥🔥🔥🔥 Добавляйте объявление в избранное что бы не потерять  🔥🔥🔥🔥🔥</strong></p> <p><strong>🔫🔨🔧 Оперативный гарантийный сервис! 🔫🔨🔧</strong></p> <p><strong>📲📲📲 Обращайтесь за помощью в сообщениях или по телефону, всегда на связи! 📞📞📞</strong></p>"
-# check_new = True
-# excel_file_name = 'Выгрузка Garopt'
-
-# garopt_check(donor_links[0], discount, days_delta, yandex_token, yandex_image_folder_path, annex, check_new, excel_file_name, currencies, 15)

@@ -24,7 +24,7 @@ def download_file(downloadfile, headers):
         href = res['href']
         urllib.request.urlretrieve(href, downloadfile)
     except:
-        print(f"\nНа диске нет такого файла ({downloadfile})")
+        print(f"\nНа диске нет файла {downloadfile}")
     
 def get_new_link(filename, yandex_folder):
     filename = fr'{filename}'
