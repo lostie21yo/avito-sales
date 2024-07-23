@@ -11,6 +11,7 @@ from donor_checkers.mkslift_checker import mkslift_check
 from donor_checkers.ironmac_checker import ironmac_check
 from donor_checkers.garopt_checker import garopt_check
 from donor_checkers.wiederkraft_checker import wiederkraft_check
+from donor_checkers.optimus_checker import optimus_check
 
 # периодичность и время
 first_launch_date = datetime.now().date()
@@ -49,38 +50,43 @@ def CheckUp():
             excel_file_name = data['excel_file_name']
             # скачивание последних версий выгрузок с яндекс диска
             headers = {'Content-Type': 'application/json', 'Accept': 'application/json', 'Authorization': f'OAuth {yandex_token}'}
-            download_file(f'{excel_file_name}.xlsx', headers)
+            # download_file(f'{excel_file_name}.xlsx', headers)
             for donor in data['donors']:
-                # # mkslift
-                # if donor['name'] == 'mkslift':
-                #     print(f"\n-=== Account name: {account['name']}, donor name: {donor['name']}, discount: {donor['discount']}, file: {excel_file_name} ===-")
-                #     daily_report['mkslift'] = mkslift_check(donor['link'], donor['discount'], donor['days_delta'], yandex_token, 
-                #                 donor['yandex_image_folder_path'], annex, check_new, excel_file_name + appendix, currencies, periodic_save_delta)
-                # # ironmac
-                # if donor['name'] == 'ironmac':
-                #     print(f"\n-=== Account name: {account['name']}, donor name: {donor['name']}, discount: {donor['discount']}, file: {excel_file_name} ===-")
-                #     daily_report['ironmac'] = ironmac_check(donor['link'], donor['discount'], donor['days_delta'], yandex_token, 
-                #                 donor['yandex_image_folder_path'], annex, check_new, excel_file_name + appendix, currencies, periodic_save_delta)
-                # # # garopt1
-                # if donor['name'] == 'garopt1':
-                #     print(f"\n-=== Account name: {account['name']}, donor name: {donor['name']}, discount: {donor['discount']}, file: {excel_file_name} ===-")
-                #     daily_report['garopt1'] = garopt_check(donor['link'],  donor['discount'], donor['days_delta'], yandex_token, 
-                #             donor['yandex_image_folder_path'], annex, check_new, excel_file_name + appendix, currencies, periodic_save_delta)
-                # # garopt2
-                # if donor['name'] == 'garopt2':
-                #     print(f"\n-=== Account name: {account['name']}, donor name: {donor['name']}, discount: {donor['discount']}, file: {excel_file_name} ===-")
-                #     daily_report['garopt2'] = garopt_check(donor['link'],  donor['discount'], donor['days_delta'], yandex_token, 
-                #             donor['yandex_image_folder_path'], annex, check_new, excel_file_name + appendix, currencies, periodic_save_delta) 
-                # # garopt3
-                # if donor['name'] == 'garopt3':
-                #     print(f"\n-=== Account name: {account['name']}, donor name: {donor['name']}, discount: {donor['discount']}, file: {excel_file_name} ===-")
-                #     daily_report['garopt3'] = garopt_check(donor['link'],  donor['discount'], donor['days_delta'], yandex_token, 
-                #             donor['yandex_image_folder_path'], annex, check_new, excel_file_name + appendix, currencies, periodic_save_delta)
+                # mkslift
+                if donor['name'] == 'mkslift':
+                    print(f"\n-=== Account name: {account['name']}, donor name: {donor['name']}, discount: {donor['discount']}, file: {excel_file_name} ===-")
+                    daily_report['mkslift'] = mkslift_check(donor['link'], donor['discount'], donor['days_delta'], yandex_token, 
+                                donor['yandex_image_folder_path'], annex, check_new, excel_file_name + appendix, currencies, periodic_save_delta)
+                # ironmac
+                if donor['name'] == 'ironmac':
+                    print(f"\n-=== Account name: {account['name']}, donor name: {donor['name']}, discount: {donor['discount']}, file: {excel_file_name} ===-")
+                    daily_report['ironmac'] = ironmac_check(donor['link'], donor['discount'], donor['days_delta'], yandex_token, 
+                                donor['yandex_image_folder_path'], annex, check_new, excel_file_name + appendix, currencies, periodic_save_delta)
+                # garopt1
+                if donor['name'] == 'garopt1':
+                    print(f"\n-=== Account name: {account['name']}, donor name: {donor['name']}, discount: {donor['discount']}, file: {excel_file_name} ===-")
+                    daily_report['garopt1'] = garopt_check(donor['link'],  donor['discount'], donor['days_delta'], yandex_token, 
+                            donor['yandex_image_folder_path'], annex, check_new, excel_file_name + appendix, currencies, periodic_save_delta)
+                # garopt2
+                if donor['name'] == 'garopt2':
+                    print(f"\n-=== Account name: {account['name']}, donor name: {donor['name']}, discount: {donor['discount']}, file: {excel_file_name} ===-")
+                    daily_report['garopt2'] = garopt_check(donor['link'],  donor['discount'], donor['days_delta'], yandex_token, 
+                            donor['yandex_image_folder_path'], annex, check_new, excel_file_name + appendix, currencies, periodic_save_delta) 
+                # garopt3
+                if donor['name'] == 'garopt3':
+                    print(f"\n-=== Account name: {account['name']}, donor name: {donor['name']}, discount: {donor['discount']}, file: {excel_file_name} ===-")
+                    daily_report['garopt3'] = garopt_check(donor['link'],  donor['discount'], donor['days_delta'], yandex_token, 
+                            donor['yandex_image_folder_path'], annex, check_new, excel_file_name + appendix, currencies, periodic_save_delta)
                 # WiederKraft
-                if donor['name'] == 'wiederkraft':
-                    print(f"Account name: {account['name']}, donor name: {donor['name']}, discount: {donor['discount']}")
-                    daily_report['wiederkraft'] = wiederkraft_check(donor['link'],  donor['discount'], donor['days_delta'], yandex_token, 
-                            donor['yandex_image_folder_path'], annex, check_new, excel_file_name + appendix, currencies, periodic_save_delta)  
+                # if donor['name'] == 'wiederkraft':
+                #     print(f"\n-=== Account name: {account['name']}, donor name: {donor['name']}, discount: {donor['discount']}, file: {excel_file_name} ===-")
+                #     daily_report['wiederkraft'] = wiederkraft_check(donor['link'],  donor['discount'], donor['days_delta'], yandex_token, 
+                #             donor['yandex_image_folder_path'], annex, check_new, excel_file_name + appendix, currencies, periodic_save_delta)
+                # Optimus
+                # if donor['name'] == 'optimus':
+                #     print(f"\n-=== Account name: {account['name']}, donor name: {donor['name']}, discount: {donor['discount']}, file: {excel_file_name} ===-")
+                #     daily_report['optimus'] = optimus_check(donor['link'],  donor['discount'], donor['days_delta'], yandex_token, 
+                #             donor['yandex_image_folder_path'], annex, check_new, excel_file_name + appendix, currencies, periodic_save_delta)
                                 
         message = f"\nУспешное обновление выгрузки!"              
         print(message)
@@ -104,7 +110,8 @@ def CheckUp():
     finally:
         print(f'Результаты:')
         for key in daily_report:
-            print(f'{key}: новые - {daily_report[key]['new']}, старые - {daily_report[key]['old']}')
+            # print(f'{key}: новые - {daily_report[key]['new']}, старые - {daily_report[key]['old']}')
+            print(f'{key}: {daily_report[key]}')
         print(f"\nСледующая проверка завтра в {start_time}")
 
 CheckUp()           

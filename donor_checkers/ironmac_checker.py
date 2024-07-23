@@ -140,14 +140,15 @@ def ironmac_check(donor_link, discount, days_delta, yandex_token, yandex_image_f
                 except:
                     continue
 
-                if float(price) < 0 or float(price) > 3000: 
-                    # наличие
-                    if donor_df['Статус'][j] == "В наличии":
-                        availability = "В наличии"
-                    else:
-                        availability = "Нет в наличии"
-                else: # делаем позиции неактивными с ценой меньше 3к
-                    availability = "Нет в наличии"
+                # if float(price) < 0 or float(price) > 3000: 
+                #     # наличие
+                #     if donor_df['Статус'][j] == "В наличии":
+                #         availability = "В наличии"
+                #     else:
+                #         availability = "Нет в наличии"
+                # else: # делаем позиции неактивными с ценой меньше 3к
+                #     availability = "Нет в наличии"
+                availability = "В наличии"
 
                 # DateEnd
                 dateend = change_dateend(availability, str(df.loc[i, 'AvitoStatus']), yesterday)

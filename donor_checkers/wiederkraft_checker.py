@@ -2,7 +2,7 @@ import os
 import sys
 import re
 import cv2
-import time
+from time import sleep
 import requests
 import pandas as pd
 from datetime import *
@@ -55,6 +55,9 @@ def wiederkraft_check(donor_link, discount, days_delta, yandex_token, yandex_ima
                         
                         # цена
                         price = float(''.join(re.findall(r'\d+', product_html.find("bdi").text)))
+                        # if price < 8000:
+                        #     price_lower_count += 1
+                        #     break
 
                         # артикул
                         try:
@@ -118,11 +121,15 @@ def wiederkraft_check(donor_link, discount, days_delta, yandex_token, yandex_ima
                         df.loc[new_index, 'ProductType'] = category[2]
                         df.loc[new_index, 'Description'] = description
                         df.loc[new_index, 'ImageUrls'] = imageUrls
+                        if 70 < len(df) and 80 > len(df):
+                            print(f'new_count {new_count}, len(df) {len(df)}, vendorCode {vendorCode}')
                         # периодический сейв
                         if new_count!=0 and (new_count%periodic_save_delta == 0):
-                            print('saved 15')
-                            df = df.drop_duplicates(subset=["Id"], keep='last')
+                            # df = df.drop_duplicates(subset=["Id"], keep='last')
                             df.to_excel(f'{excel_file_name}.xlsx', sheet_name='Sheet1', index=False)
+                            sleep(1)
+
+                            
             except Exception as e:
                 print(e)
                 break

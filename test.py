@@ -11,15 +11,16 @@ from bs4 import BeautifulSoup as BS
 from tqdm import tqdm, trange
 from PIL import Image
 from urllib.request import urlopen
+from collections import Counter
 
+df = pd.read_excel(f"Выгрузка Avito3.xlsx", sheet_name='Sheet1')
+unique_Ids = df["Id"]
 
-new_count = 0
-first_page = requests.get(f"https://wiederkraft.ru/shop/page/{1}/")
-html = BS(first_page.content, 'html.parser')
+print(len(df))
+df = df.drop_duplicates(subset=["Id"], keep='first')
+print(len(df))
 
-max_page_number = 0
-for product in html.find_all("a", {"class": "page-numbers"}):
-    if product.text.isdigit() and int(product.text) > max_page_number:
-        max_page_number = int(product.text)
+c = Counter(unique_Ids)
+# print(c)
 
-print(max_page_number)
+df.to_excel(f'Выгрузка Avito3.xlsx', sheet_name='Sheet1', index=False)
