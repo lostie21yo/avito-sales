@@ -158,6 +158,7 @@ def wiederkraft_check(donor_link, discount, days_delta, yandex_token, yandex_ima
                 price_df.loc[j, 'Status'] = "OK"
                 break
 
+
         # Наличие
         if float(df.loc[i, 'Price']) > 8000:
             availability = "В наличии"
