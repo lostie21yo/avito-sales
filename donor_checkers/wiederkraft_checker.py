@@ -158,7 +158,7 @@ def wiederkraft_check(donor_link, discount, days_delta, yandex_token, yandex_ima
                 price_df.loc[j, 'Status'] = "OK"
                 break
 
-
+                
         # Наличие
         if float(df.loc[i, 'Price']) > 8000:
             availability = "В наличии"
@@ -183,6 +183,10 @@ def wiederkraft_check(donor_link, discount, days_delta, yandex_token, yandex_ima
     df.to_excel(f'{excel_file_name}.xlsx', sheet_name='Sheet1', index=False)
     price_df.to_excel(f'sources/Wiederkraft price.xlsx', sheet_name='WDK price', index=False)
     upload_file(f'{excel_file_name}.xlsx', f'/{excel_file_name}.xlsx', headers, replace=True)
+    if check_new:
+        check = 'ВКЛ.'
+    else:
+        check = 'ВЫКЛ.'
 
-    return {'new': new_count, 'old': old_count}
+    return {'new': new_count, 'old': old_count-new_count, 'check': str(check)}
     

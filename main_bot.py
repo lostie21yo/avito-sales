@@ -50,7 +50,7 @@ def CheckUp():
             excel_file_name = data['excel_file_name']
             # скачивание последних версий выгрузок с яндекс диска
             headers = {'Content-Type': 'application/json', 'Accept': 'application/json', 'Authorization': f'OAuth {yandex_token}'}
-            # download_file(f'{excel_file_name}.xlsx', headers)
+            download_file(f'{excel_file_name}.xlsx', headers)
             for donor in data['donors']:
                 # mkslift
                 if donor['name'] == 'mkslift':
@@ -104,14 +104,19 @@ def CheckUp():
         else:
             attempt = 0
             print(f'Достигнуто максимальное количество попыток {len(retry_time_intervals)}. Отправлено уведомление. Попытки продолжаются...')
-            message = f"Похоже какая-то херня с донором, интернет-то есть, глянь-ка!"
+            message = f"Похоже какая-то проблема с донором!"
             requests.get(f"https://api.telegram.org/bot{bot_token}/sendMessage?chat_id={chat_id}&text={message}").json()
             CheckUp()
     finally:
         print(f'Результаты:')
+        message = ['Ежедневный отчет:']
         for key in daily_report:
-            # print(f'{key}: новые - {daily_report[key]['new']}, старые - {daily_report[key]['old']}')
-            print(f'{key}: {daily_report[key]}')
+            report = f'{key}: старые - {daily_report[key]['old']}, новые - {daily_report[key]['new']} (проверка новых {daily_report[key]['check']})'
+            message.append(report)
+            print(report)
+        message.append(f"\nСледующая проверка завтра в {start_time}")
+        message = '\n'.join(message)
+        requests.get(f"https://api.telegram.org/bot{bot_token}/sendMessage?chat_id={chat_id}&text={message}").json()
         print(f"\nСледующая проверка завтра в {start_time}")
 
 CheckUp()           

@@ -185,6 +185,10 @@ def garopt_check(donor_link, discount, days_delta, yandex_token, yandex_image_fo
     df = df.drop_duplicates(subset=["Id"], keep='last')
     df.to_excel(f'{excel_file_name}.xlsx', sheet_name='Объявления', index=False)
     upload_file(f'{excel_file_name}.xlsx', f'/{excel_file_name}.xlsx', headers, replace=True)
+    if check_new:
+        check = 'ВКЛ.'
+    else:
+        check = 'ВЫКЛ.'
 
-    return {'new': new_count, 'old': old_count}
+    return {'new': new_count, 'old': old_count-new_count, 'check': str(check)}
     
