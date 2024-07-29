@@ -91,7 +91,8 @@ def CheckUp():
                                 
         message = f"\nУспешное обновление выгрузки!"              
         print(message)
-        requests.get(f"https://api.telegram.org/bot{bot_token}/sendMessage?chat_id={chat_id}&text={message}").json()
+        for id in chat_ids:
+            requests.get(f"https://api.telegram.org/bot{bot_token}/sendMessage?chat_id={id}&text={message}").json()
 
     except Exception as e:
         print(e)
@@ -99,14 +100,16 @@ def CheckUp():
         if attempt <= len(retry_time_intervals):
             t.sleep(retry_time_intervals[attempt-1])
             message = f'Попытка перезапуска №{attempt}'
-            requests.get(f"https://api.telegram.org/bot{bot_token}/sendMessage?chat_id={chat_id}&text={message}").json()
+            for id in chat_ids:
+                requests.get(f"https://api.telegram.org/bot{bot_token}/sendMessage?chat_id={id}&text={message}").json()
             print(f'Попытка перезапуска №{attempt}')
             CheckUp()
         else:
             attempt = 0
             print(f'Достигнуто максимальное количество попыток {len(retry_time_intervals)}. Отправлено уведомление. Попытки продолжаются...')
             message = f"Похоже какая-то проблема с донором!"
-            requests.get(f"https://api.telegram.org/bot{bot_token}/sendMessage?chat_id={chat_id}&text={message}").json()
+            for id in chat_ids:
+                requests.get(f"https://api.telegram.org/bot{bot_token}/sendMessage?chat_id={id}&text={message}").json()
             CheckUp()
     finally:
         print(f'Результаты:')
@@ -117,7 +120,8 @@ def CheckUp():
             print(report)
         message.append(f"\nСледующая проверка завтра в {start_time}")
         message = '\n'.join(message)
-        requests.get(f"https://api.telegram.org/bot{bot_token}/sendMessage?chat_id={chat_id}&text={message}").json()
+        for id in chat_ids:
+            requests.get(f"https://api.telegram.org/bot{bot_token}/sendMessage?chat_id={id}&text={message}").json()
         print(f"\nСледующая проверка завтра в {start_time}")
 
 CheckUp()           
