@@ -29,6 +29,9 @@ def wiederkraft_check(donor_link, discount, days_delta, yandex_token, yandex_ima
     df = pd.read_excel(f"{excel_file_name}.xlsx", sheet_name='Sheet1')
     unique_Ids = df["Id"]
 
+    # парсинг прайса wdk/opt
+    price_df = pd.read_excel(f"sources/Wiederkraft price.xlsx", sheet_name='WDK price')
+
     # выявление последней страницы
     first_page = requests.get(f"{donor_link}/{1}/")
     html = BS(first_page.content, 'html.parser')
@@ -41,6 +44,7 @@ def wiederkraft_check(donor_link, discount, days_delta, yandex_token, yandex_ima
 
     # добавление новых позиций
     if check_new:
+        print(f'Проверка наличия новых позиций и их добавление:')
         for i in trange(max_page_number):
             page = requests.get(f"{donor_link}/{i+1}/")
             html = BS(page.content, 'html.parser')
@@ -64,70 +68,70 @@ def wiederkraft_check(donor_link, discount, days_delta, yandex_token, yandex_ima
                             vendorCode = product_html.find("span", {"class": "sku"}).text
                         except:
                             vendorCode = "no data"
+                        if vendorCode not in unique_Ids.values:
 
-                        # title
-                        title = product_html.find("h1", {"class": "product_title entry-title"}).text
-                        
-                        # получаем категории
-                        category = []
-                        for cat in product_html.find("nav", {"class": "woocommerce-breadcrumb"}).children:
-                            category.append(cat.string)
-                        category = category[1:-1]
-                        while len(category) < 3:
-                            category.append('')
-                        # category = ' | '.join(category[1:-1])
-
-                        # описание 
-                        description = []
-                        page_description = product_html.find("div", {"id": "tab-description"}).stripped_strings
-                        for string in page_description:
-                            description.append(string)
-                        try:
-                            additional_info = product_html.find("div", {"id": "tab-additional_information"}).table.children
-                            for line in additional_info:
-                                string = line.get_text().strip().replace("\n", " ")
-                                description.append(string)
-                        except:
-                            pass
-                        description = '\n'.join(description).replace("\n\n", "\n")
-                        description = f"{title}\n{description}\n{annex}"
-
-                        # картинки
-                        imageUrls = []
-                        try:
-                            images = product_html.find("figure", {"class": "woocommerce-product-gallery__wrapper swiper-wrapper"}).find_all("div")
-                            for div in images:
-                                imageUrls.append(div.a["href"])
+                            # title
+                            title = product_html.find("h1", {"class": "product_title entry-title"}).text
                             
-                            origURL = imageUrls[0]
-                            filename = origURL.split('/')[-1]
-                            resized_img = format_image(origURL)
-                            cv2.imwrite(filename, resized_img)
-                            upload_file(filename, f'{yandex_image_folder_path}/{filename}', headers, True)
-                            os.remove(filename)
-                            new_URL = get_new_link(filename, yandex_image_folder_path)
-                            imageUrls[0] = new_URL # главная картинка в формате 4:3
-                            imageUrls = " | ".join(imageUrls)
-                        except:
-                            imageUrls = 'no data'
+                            # получаем категории
+                            category = []
+                            for cat in product_html.find("nav", {"class": "woocommerce-breadcrumb"}).children:
+                                category.append(cat.string)
+                            category = category[1:-1]
+                            while len(category) < 3:
+                                category.append('')
+                            # category = ' | '.join(category[1:-1])
 
-                        # запись
-                        new_count += 1
-                        df.loc[new_index, 'Id'] = vendorCode
-                        df.loc[new_index, 'Title'] = title
-                        df.loc[new_index, 'Price'] = price
-                        df.loc[new_index, 'Category'] = category[0]
-                        df.loc[new_index, 'GoodsType'] = category[1]
-                        df.loc[new_index, 'ProductType'] = category[2]
-                        df.loc[new_index, 'Description'] = description
-                        df.loc[new_index, 'ImageUrls'] = imageUrls
-                        if 70 < len(df) and 80 > len(df):
-                            print(f'new_count {new_count}, len(df) {len(df)}, vendorCode {vendorCode}')
-                        # периодический сейв
-                        if new_count!=0 and (new_count%periodic_save_delta == 0):
-                            # df = df.drop_duplicates(subset=["Id"], keep='last')
-                            df.to_excel(f'{excel_file_name}.xlsx', sheet_name='Sheet1', index=False)
-                            sleep(1)
+                            # описание 
+                            description = []
+                            page_description = product_html.find("div", {"id": "tab-description"}).stripped_strings
+                            for string in page_description:
+                                description.append(string)
+                            try:
+                                additional_info = product_html.find("div", {"id": "tab-additional_information"}).table.children
+                                for line in additional_info:
+                                    string = line.get_text().strip().replace("\n", " ")
+                                    description.append(string)
+                            except:
+                                pass
+                            description = '\n'.join(description).replace("\n\n", "\n")
+                            description = f"{title}\n{description}\n{annex}"
+
+                            # картинки
+                            imageUrls = []
+                            try:
+                                images = product_html.find("figure", {"class": "woocommerce-product-gallery__wrapper swiper-wrapper"}).find_all("div")
+                                for div in images:
+                                    imageUrls.append(div.a["href"])
+                                
+                                origURL = imageUrls[0]
+                                filename = origURL.split('/')[-1]
+                                resized_img = format_image(origURL)
+                                cv2.imwrite(filename, resized_img)
+                                upload_file(filename, f'{yandex_image_folder_path}/{filename}', headers, True)
+                                os.remove(filename)
+                                new_URL = get_new_link(filename, yandex_image_folder_path)
+                                imageUrls[0] = new_URL # главная картинка в формате 4:3
+                                imageUrls = " | ".join(imageUrls)
+                            except:
+                                imageUrls = 'no data'
+
+                            # запись
+                            new_count += 1
+                            df.loc[new_index, 'Id'] = vendorCode
+                            df.loc[new_index, 'Title'] = title
+                            df.loc[new_index, 'Price'] = price
+                            df.loc[new_index, 'Category'] = category[0]
+                            df.loc[new_index, 'GoodsType'] = category[1]
+                            df.loc[new_index, 'ProductType'] = category[2]
+                            df.loc[new_index, 'Description'] = description
+                            df.loc[new_index, 'ImageUrls'] = imageUrls
+
+                            # периодический сейв
+                            if new_count!=0 and (new_count%periodic_save_delta == 0):
+                                # df = df.drop_duplicates(subset=["Id"], keep='last')
+                                df.to_excel(f'{excel_file_name}.xlsx', sheet_name='Sheet1', index=False)
+                                sleep(1)
 
                             
             except Exception as e:
@@ -136,18 +140,47 @@ def wiederkraft_check(donor_link, discount, days_delta, yandex_token, yandex_ima
 
     old_count = 0
     # Обновление существующих позиций в выгрузке
-    # print("Обновление существующих позиций:")
-    # for i in trange(len(df)):
-    #     # description = f"{df.loc[i, 'Title']}\n{df.loc[i, 'Description']}\n{annex}"
+    print("Обновление существующих позиций:")
+    for i in trange(len(df)):
+        vendorCode = df.loc[i, 'Id'].split('/')[0]
+        for j in range(len(price_df)):
+            if vendorCode == price_df.loc[j, 'Id']:
+                price = price_df.loc[j, 'Price']
+                valute = price_df.loc[j, 'Unit']
+                
+                # цена
+                if valute != "RUB":
+                    course = currencies['Valute'][valute]['Value']
+                else:
+                    course = 1
+                price = round(price * ((100 - discount)/100) * float(course), 0)
+                df.loc[i, 'Price'] = price
+                price_df.loc[j, 'Status'] = "OK"
+                break
 
-    #     # запись
-    #     old_count += 1
-    #     # df.loc[i, 'Description'] = description
+        # Наличие
+        if float(df.loc[i, 'Price']) > 8000:
+            availability = "В наличии"
+        else:
+            availability = "Нет в наличии"
+
+        # DateEnd
+        dateend = change_dateend(availability, str(df.loc[i, 'AvitoStatus']), yesterday)
+        
+        # description = f"{df.loc[i, 'Title']}\n{df.loc[i, 'Description']}\n{annex}"
+
+        # запись
+        old_count += 1
+        # df.loc[i, 'Description'] = description
+        df.loc[i, 'Availability'] = availability
+        df.loc[i, 'DateEnd'] = dateend
+                
         
     # обработка перед финальным сохранением и сохранение
     df['DateEnd'] = pd.to_datetime(df.DateEnd).dt.strftime('%Y-%m-%d')
-    df = df.drop_duplicates(subset=["Id"], keep='last')
+    df = df.drop_duplicates(subset=["Id"], keep='first')
     df.to_excel(f'{excel_file_name}.xlsx', sheet_name='Sheet1', index=False)
+    price_df.to_excel(f'sources/Wiederkraft price.xlsx', sheet_name='WDK price', index=False)
     upload_file(f'{excel_file_name}.xlsx', f'/{excel_file_name}.xlsx', headers, replace=True)
 
     return {'new': new_count, 'old': old_count}

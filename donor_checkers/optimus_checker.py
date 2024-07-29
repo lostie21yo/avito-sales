@@ -30,12 +30,16 @@ def optimus_check(donor_link, discount, days_delta, yandex_token, yandex_image_f
     print(f'len(df) {len(df)}')
     unique_Ids = df["Id"]
 
+    # парсинг прайса wdk/opt
+    price_df = pd.read_excel(f"sources/Optimus price.xlsx", sheet_name='OPT price')
+
     new_count = 0
 
     prefix = "https://optimus.su"
 
     # добавление новых позиций
     if check_new:
+        print(f'Проверка наличия новых позиций и их добавление:')
         page = requests.get(f"{donor_link}/")
         html = BS(page.content, 'html.parser')
         for category_div in tqdm(html.find("div", {"class": "catalog_section_list row items flexbox"}).children):
@@ -64,86 +68,114 @@ def optimus_check(donor_link, discount, days_delta, yandex_token, yandex_image_f
                                 vendorCode = vendorCodeDiv.find("span", {"class": "value"}).text
                             except:
                                 vendorCode = "no data"
-
-                            # title
-                            title = product_html.find("h1", {"id": "pagetitle"}).text
-                            
-                            # получаем категории
-                            category = []
-                            for cat in product_html.find("div", {"class": "breadcrumbs"}).strings:
-                                if cat != '-':
-                                    category.append(cat)
-                            category = category[2:-1]
-                            while len(category) < 3:
-                                category.append('')
-                            # category = ' | '.join(category[1:-1])
-
-                            # описание 
-                            description = []
-                            try:
-                                for string in product_html.find("div", {"class": "detail_text"}).stripped_strings:
-                                    description.append(string)
-                            except:
-                                pass
-                            try:
-                                additional_info = product_html.find("table", {"class": "props_list nbg"}).children
-                                for line in additional_info:
-                                    string = line.get_text().strip().replace("\t", "").replace("\n", " ")
-                                    description.append(string)
-                            except:
-                                pass
-                            description = '\n'.join(description).replace("\n\n", "\n")
-                            description = f"{title}\n{description}\n{annex}"
-
-                            # картинки
-                            imageUrls = []
-                            try:
-                                imagesDiv = product_html.find("div", {"class": "slides"})
-                                links = imagesDiv.find_all("a", {"data-fancybox-group": "item_slider"})
-                                for a in links:
-                                    imageUrls.append(prefix + a["href"])
+                            if vendorCode not in unique_Ids.values:
+                                # title
+                                title = product_html.find("h1", {"id": "pagetitle"}).text
                                 
-                                origURL = imageUrls[0]
-                                filename = origURL.split('/')[-1]
-                                resized_img = format_image(origURL)
-                                cv2.imwrite(filename, resized_img)
-                                upload_file(filename, f'{yandex_image_folder_path}/{filename}', headers, True)
-                                os.remove(filename)
-                                new_URL = get_new_link(filename, yandex_image_folder_path)
-                                imageUrls[0] = new_URL # главная картинка в формате 4:3
-                                imageUrls = " | ".join(imageUrls)
-                            except:
-                                imageUrls = 'no data'
+                                # получаем категории
+                                category = []
+                                for cat in product_html.find("div", {"class": "breadcrumbs"}).strings:
+                                    if cat != '-':
+                                        category.append(cat)
+                                category = category[2:-1]
+                                while len(category) < 3:
+                                    category.append('')
+                                # category = ' | '.join(category[1:-1])
 
-                            # запись
-                            new_count += 1
-                            df.loc[new_index, 'Id'] = vendorCode
-                            df.loc[new_index, 'Title'] = title
-                            # df.loc[new_index, 'Price'] = price
-                            df.loc[new_index, 'Category'] = category[0]
-                            df.loc[new_index, 'GoodsType'] = category[1]
-                            df.loc[new_index, 'ProductType'] = category[2]
-                            df.loc[new_index, 'Description'] = description
-                            df.loc[new_index, 'ImageUrls'] = imageUrls
-                            # периодический сейв
-                            if new_count!=0 and (new_count%periodic_save_delta == 0):
-                                df.to_excel(f'{excel_file_name}.xlsx', sheet_name='Sheet1', index=False)
-                                sleep(1)
+                                # описание 
+                                description = []
+                                try:
+                                    for string in product_html.find("div", {"class": "detail_text"}).stripped_strings:
+                                        description.append(string)
+                                except:
+                                    pass
+                                try:
+                                    additional_info = product_html.find("table", {"class": "props_list nbg"}).children
+                                    for line in additional_info:
+                                        string = line.get_text().strip().replace("\t", "").replace("\n", " ")
+                                        description.append(string)
+                                except:
+                                    pass
+                                description = '\n'.join(description).replace("\n\n", "\n")
+                                description = f"{title}\n{description}\n{annex}"
+
+                                # картинки
+                                imageUrls = []
+                                try:
+                                    imagesDiv = product_html.find("div", {"class": "slides"})
+                                    links = imagesDiv.find_all("a", {"data-fancybox-group": "item_slider"})
+                                    for a in links:
+                                        imageUrls.append(prefix + a["href"])
+                                    
+                                    origURL = imageUrls[0]
+                                    filename = origURL.split('/')[-1]
+                                    resized_img = format_image(origURL)
+                                    cv2.imwrite(filename, resized_img)
+                                    upload_file(filename, f'{yandex_image_folder_path}/{filename}', headers, True)
+                                    os.remove(filename)
+                                    new_URL = get_new_link(filename, yandex_image_folder_path)
+                                    imageUrls[0] = new_URL # главная картинка в формате 4:3
+                                    imageUrls = " | ".join(imageUrls)
+                                except:
+                                    imageUrls = 'no data'
+
+                                # запись
+                                new_count += 1
+                                df.loc[new_index, 'Id'] = vendorCode
+                                df.loc[new_index, 'Title'] = title
+                                # df.loc[new_index, 'Price'] = price
+                                df.loc[new_index, 'Category'] = category[0]
+                                df.loc[new_index, 'GoodsType'] = category[1]
+                                df.loc[new_index, 'ProductType'] = category[2]
+                                df.loc[new_index, 'Description'] = description
+                                df.loc[new_index, 'ImageUrls'] = imageUrls
+                                # периодический сейв
+                                if new_count!=0 and (new_count%periodic_save_delta == 0):
+                                    df.to_excel(f'{excel_file_name}.xlsx', sheet_name='Sheet1', index=False)
+                                    sleep(1)
     
     old_count = 0
     # Обновление существующих позиций в выгрузке
-    # print("Обновление существующих позиций:")
-    # for i in trange(len(df)):
-    #     # description = f"{df.loc[i, 'Title']}\n{df.loc[i, 'Description']}\n{annex}"
+    print("Обновление существующих позиций:")
+    for i in trange(len(df)):
+        vendorCode = df.loc[i, 'Id'].split('/')[0]
+        for j in range(len(price_df)):
+            if vendorCode == price_df.loc[j, 'Id']:
+                price = price_df.loc[j, 'Price']
+                valute = price_df.loc[j, 'Unit']
+                
+                # цена
+                if valute != "RUB":
+                    course = currencies['Valute'][valute]['Value']
+                else:
+                    course = 1
+                price = round(price * ((100 - discount)/100) * float(course), 0)
+                df.loc[i, 'Price'] = price
+                price_df.loc[j, 'Status'] = "OK"
+                break
+            
+        # Наличие
+        if float(df.loc[i, 'Price']) > 8000:
+            availability = "В наличии"
+        else:
+            availability = "Нет в наличии"
 
-    #     # запись
-    #     old_count += 1
-    #     # df.loc[i, 'Description'] = description
+        # DateEnd
+        dateend = change_dateend(availability, str(df.loc[i, 'AvitoStatus']), yesterday)
+        
+        # description = f"{df.loc[i, 'Title']}\n{df.loc[i, 'Description']}\n{annex}"
+
+        # запись
+        old_count += 1
+        # df.loc[i, 'Description'] = description
+        df.loc[i, 'Availability'] = availability
+        df.loc[i, 'DateEnd'] = dateend
         
     # обработка перед финальным сохранением и сохранение
     df['DateEnd'] = pd.to_datetime(df.DateEnd).dt.strftime('%Y-%m-%d')
-    # df = df.drop_duplicates(subset=["Id"], keep='last')
+    df = df.drop_duplicates(subset=["Id"], keep='first')
     df.to_excel(f'{excel_file_name}.xlsx', sheet_name='Sheet1', index=False)
+    price_df.to_excel(f'sources/Optimus price.xlsx', sheet_name='OPT price', index=False)
     upload_file(f'{excel_file_name}.xlsx', f'/{excel_file_name}.xlsx', headers, replace=True)
 
     return {'new': new_count, 'old': old_count}

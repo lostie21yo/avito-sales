@@ -78,15 +78,15 @@ def CheckUp():
                     daily_report['garopt3'] = garopt_check(donor['link'],  donor['discount'], donor['days_delta'], yandex_token, 
                             donor['yandex_image_folder_path'], annex, check_new, excel_file_name + appendix, currencies, periodic_save_delta)
                 # WiederKraft
-                # if donor['name'] == 'wiederkraft':
-                #     print(f"\n-=== Account name: {account['name']}, donor name: {donor['name']}, discount: {donor['discount']}, file: {excel_file_name} ===-")
-                #     daily_report['wiederkraft'] = wiederkraft_check(donor['link'],  donor['discount'], donor['days_delta'], yandex_token, 
-                #             donor['yandex_image_folder_path'], annex, check_new, excel_file_name + appendix, currencies, periodic_save_delta)
+                if donor['name'] == 'wiederkraft':
+                    print(f"\n-=== Account name: {account['name']}, donor name: {donor['name']}, discount: {donor['discount']}, file: {excel_file_name} ===-")
+                    daily_report['wiederkraft'] = wiederkraft_check(donor['link'],  donor['discount'], donor['days_delta'], yandex_token, 
+                            donor['yandex_image_folder_path'], annex, False, excel_file_name + appendix, currencies, periodic_save_delta)
                 # Optimus
-                # if donor['name'] == 'optimus':
-                #     print(f"\n-=== Account name: {account['name']}, donor name: {donor['name']}, discount: {donor['discount']}, file: {excel_file_name} ===-")
-                #     daily_report['optimus'] = optimus_check(donor['link'],  donor['discount'], donor['days_delta'], yandex_token, 
-                #             donor['yandex_image_folder_path'], annex, check_new, excel_file_name + appendix, currencies, periodic_save_delta)
+                if donor['name'] == 'optimus':
+                    print(f"\n-=== Account name: {account['name']}, donor name: {donor['name']}, discount: {donor['discount']}, file: {excel_file_name} ===-")
+                    daily_report['optimus'] = optimus_check(donor['link'],  donor['discount'], donor['days_delta'], yandex_token, 
+                            donor['yandex_image_folder_path'], annex, False, excel_file_name + appendix, currencies, periodic_save_delta)
                                 
         message = f"\nУспешное обновление выгрузки!"              
         print(message)
