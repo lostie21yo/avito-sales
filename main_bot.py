@@ -22,9 +22,10 @@ periodic_save_delta = 15
 
 # уведомление о первоначальном запуске
 bot_token = "7227476930:AAHz9Aldcx4G2cTiyyZsEfkpyUirNeSffqY"
-chat_id = "904798847"
+chat_ids = ["904798847", "546496045"]
 message = f"Произведена инициализация бота {first_launch_date}. Проверка доноров ежедневно в {start_time}."
-requests.get(f"https://api.telegram.org/bot{bot_token}/sendMessage?chat_id={chat_id}&text={message}").json()
+for id in chat_ids:
+    requests.get(f"https://api.telegram.org/bot{bot_token}/sendMessage?chat_id={id}&text={message}").json()
 print(f'{message}')
 
 # appendix = ' test'
