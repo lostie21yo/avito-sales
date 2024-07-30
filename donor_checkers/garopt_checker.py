@@ -190,5 +190,5 @@ def garopt_check(donor_link, discount, days_delta, yandex_token, yandex_image_fo
     else:
         check = 'ВЫКЛ.'
 
-    return {'new': new_count, 'old': old_count-new_count, 'check': str(check)}
+    return {'new': new_count, 'old': old_count-new_count, 'check': str(check), 'discount': discount}
     

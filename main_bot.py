@@ -16,14 +16,15 @@ from donor_checkers.optimus_checker import optimus_check
 # периодичность и время
 first_launch_date = datetime.now().date()
 check_new = True
-start_time = "06:00"
+start_time = "02:00"
+msk_time = f'{int(start_time.split(':')[0][0])}{int(start_time.split(':')[0])+3}:{start_time.split(':')[1]}'
 retry_time_intervals = [300, 600, 900, 1500, 1800] + [3600]*21
 periodic_save_delta = 15
 
 # уведомление о первоначальном запуске
 bot_token = "7227476930:AAHz9Aldcx4G2cTiyyZsEfkpyUirNeSffqY"
-chat_ids = ["904798847", "546496045"]
-message = f"Произведена инициализация бота {first_launch_date}. Проверка доноров ежедневно в {start_time}."
+chat_ids = ["904798847", "546496045"] # 546496045 - иван
+message = f"Произведена инициализация бота {first_launch_date}. Проверка доноров ежедневно в {msk_time} МСК."
 for id in chat_ids:
     requests.get(f"https://api.telegram.org/bot{bot_token}/sendMessage?chat_id={id}&text={message}").json()
 print(f'{message}')
@@ -115,14 +116,14 @@ def CheckUp():
         print(f'Результаты:')
         message = ['Ежедневный отчет:']
         for key in daily_report:
-            report = f'{key}: старые - {daily_report[key]['old']}, новые - {daily_report[key]['new']} (проверка новых {daily_report[key]['check']})'
+            report = f'{key}:\n- старые: {daily_report[key]['old']},\n- новые: {daily_report[key]['new']} (проверка новых {daily_report[key]['check']}),\n- скидка: {daily_report[key]['discount']}%\n'
             message.append(report)
             print(report)
-        message.append(f"\nСледующая проверка завтра в {start_time}")
+        message.append(f"\nСледующая проверка завтра в {msk_time} МСК")
         message = '\n'.join(message)
         for id in chat_ids:
             requests.get(f"https://api.telegram.org/bot{bot_token}/sendMessage?chat_id={id}&text={message}").json()
-        print(f"\nСледующая проверка завтра в {start_time}")
+        print(f"\nСледующая проверка завтра в {msk_time} МСК")
 
 CheckUp()           
 schedule.every().day.at(start_time).do(CheckUp) 

@@ -155,7 +155,7 @@ def optimus_check(donor_link, discount, days_delta, yandex_token, yandex_image_f
                 break
             
         # Наличие
-        if float(df.loc[i, 'Price']) > 8000:
+        if float(df.loc[i, 'Price']) > 3000:
             availability = "В наличии"
         else:
             availability = "Нет в наличии"
@@ -182,5 +182,5 @@ def optimus_check(donor_link, discount, days_delta, yandex_token, yandex_image_f
     else:
         check = 'ВЫКЛ.'
 
-    return {'new': new_count, 'old': old_count-new_count, 'check': str(check)}
+    return {'new': new_count, 'old': old_count-new_count, 'check': str(check), 'discount': discount}
     

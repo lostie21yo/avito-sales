@@ -173,7 +173,7 @@ def mkslift_check(donor_link, discount, days_delta, yandex_token, yandex_image_f
                 except:
                     continue
 
-                if float(price) > 3000: 
+                if float(price) > 8000: 
                     # наличие
                     if offer.attrib['available'] == "true":
                         availability = "В наличии"
@@ -204,4 +204,4 @@ def mkslift_check(donor_link, discount, days_delta, yandex_token, yandex_image_f
     else:
         check = 'ВЫКЛ.'
 
-    return {'new': new_count, 'old': old_count-new_count, 'check': str(check)}
+    return {'new': new_count, 'old': old_count-new_count, 'check': str(check), 'discount': discount}
