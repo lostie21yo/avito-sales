@@ -123,7 +123,7 @@ def CheckUp():
         message = '\n'.join(message)
         for id in chat_ids:
             requests.get(f"https://api.telegram.org/bot{bot_token}/sendMessage?chat_id={id}&text={message}").json()
-        print(f"\nСледующая проверка завтра в {msk_time} МСК")
+        print(f"Следующая проверка завтра в {msk_time} МСК")
 
 CheckUp()           
 schedule.every().day.at(start_time).do(CheckUp) 

@@ -26,7 +26,7 @@ def optimus_check(donor_link, discount, days_delta, yandex_token, yandex_image_f
     create_folder(yandex_image_folder_path, headers) # создание папки, если ее нет
     
     # открываем xlsx файл выгрузки
-    df = pd.read_excel(f"{excel_file_name}.xlsx", sheet_name='Sheet1')
+    df = pd.read_excel(f"{excel_file_name}.xlsx", sheet_name='Объявления')
     print(f'len(df) {len(df)}')
     unique_Ids = df["Id"]
 
@@ -131,7 +131,7 @@ def optimus_check(donor_link, discount, days_delta, yandex_token, yandex_image_f
                                 df.loc[new_index, 'ImageUrls'] = imageUrls
                                 # периодический сейв
                                 if new_count!=0 and (new_count%periodic_save_delta == 0):
-                                    df.to_excel(f'{excel_file_name}.xlsx', sheet_name='Sheet1', index=False)
+                                    df.to_excel(f'{excel_file_name}.xlsx', sheet_name='Объявления', index=False)
                                     sleep(1)
     
     old_count = 0
@@ -150,31 +150,37 @@ def optimus_check(donor_link, discount, days_delta, yandex_token, yandex_image_f
                 else:
                     course = 1
                 price = round(price * ((100 - discount)/100) * float(course), 0)
+
+                # Наличие
+                if float(df.loc[i, 'Price']) > 8000:
+                    availability = "В наличии"
+                else:
+                    availability = "Нет в наличии"
+
+                # DateEnd
+                dateend = change_dateend(availability, str(df.loc[i, 'AvitoStatus']), yesterday)
+                # description = f"{df.loc[i, 'Title']}\n{df.loc[i, 'Description']}\n{annex}"
+
+                # title = (f'{df.loc[i, 'Title'].split(vendorCode)[1]} {vendorCode}').strip()
+                title = df.loc[i, 'Title'].strip()
+
+                # запись
+                old_count += 1
+                # df.loc[i, 'Description'] = description
+                df.loc[i, 'Title'] = title
+                df.loc[i, 'Availability'] = availability
+                df.loc[i, 'DateEnd'] = dateend
                 df.loc[i, 'Price'] = price
                 price_df.loc[j, 'Status'] = "OK"
                 break
             
-        # Наличие
-        if float(df.loc[i, 'Price']) > 3000:
-            availability = "В наличии"
-        else:
-            availability = "Нет в наличии"
-
-        # DateEnd
-        dateend = change_dateend(availability, str(df.loc[i, 'AvitoStatus']), yesterday)
         
-        # description = f"{df.loc[i, 'Title']}\n{df.loc[i, 'Description']}\n{annex}"
 
-        # запись
-        old_count += 1
-        # df.loc[i, 'Description'] = description
-        df.loc[i, 'Availability'] = availability
-        df.loc[i, 'DateEnd'] = dateend
         
     # обработка перед финальным сохранением и сохранение
     df['DateEnd'] = pd.to_datetime(df.DateEnd).dt.strftime('%Y-%m-%d')
     df = df.drop_duplicates(subset=["Id"], keep='first')
-    df.to_excel(f'{excel_file_name}.xlsx', sheet_name='Sheet1', index=False)
+    df.to_excel(f'{excel_file_name}.xlsx', sheet_name='Объявления', index=False)
     price_df.to_excel(f'sources/Optimus price.xlsx', sheet_name='OPT price', index=False)
     upload_file(f'{excel_file_name}.xlsx', f'/{excel_file_name}.xlsx', headers, replace=True)
     if check_new:
