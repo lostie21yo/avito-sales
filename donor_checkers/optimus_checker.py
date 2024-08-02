@@ -162,12 +162,12 @@ def optimus_check(donor_link, discount, days_delta, yandex_token, yandex_image_f
                 # description = f"{df.loc[i, 'Title']}\n{df.loc[i, 'Description']}\n{annex}"
 
                 # title = (f'{df.loc[i, 'Title'].split(vendorCode)[1]} {vendorCode}').strip()
-                title = df.loc[i, 'Title'].strip()
+                # title = df.loc[i, 'Title'].strip()
 
                 # запись
                 old_count += 1
                 # df.loc[i, 'Description'] = description
-                df.loc[i, 'Title'] = title
+                # df.loc[i, 'Title'] = title
                 df.loc[i, 'Availability'] = availability
                 df.loc[i, 'DateEnd'] = dateend
                 df.loc[i, 'Price'] = price
