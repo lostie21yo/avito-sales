@@ -157,8 +157,6 @@ def optimus_check(donor_link, discount, days_delta, yandex_token, yandex_image_f
                 else:
                     availability = "Нет в наличии"
 
-                # DateEnd
-                dateend = change_dateend(availability, str(df.loc[i, 'AvitoStatus']), yesterday)
                 # description = f"{df.loc[i, 'Title']}\n{df.loc[i, 'Description']}\n{annex}"
 
                 # title = (f'{df.loc[i, 'Title'].split(vendorCode)[1]} {vendorCode}').strip()
@@ -169,11 +167,13 @@ def optimus_check(donor_link, discount, days_delta, yandex_token, yandex_image_f
                 # df.loc[i, 'Description'] = description
                 # df.loc[i, 'Title'] = title
                 df.loc[i, 'Availability'] = availability
-                df.loc[i, 'DateEnd'] = dateend
                 df.loc[i, 'Price'] = price
                 price_df.loc[j, 'Status'] = "OK"
                 break
-            
+
+        # DateEnd
+        dateend = change_dateend(df.loc[i, 'Availability'], str(df.loc[i, 'AvitoStatus']), yesterday)
+        df.loc[i, 'DateEnd'] = dateend    
         
 
         

@@ -23,7 +23,7 @@ periodic_save_delta = 15
 
 # уведомление о первоначальном запуске
 bot_token = "7227476930:AAHz9Aldcx4G2cTiyyZsEfkpyUirNeSffqY"
-chat_ids = ["904798847", "546496045"] # 546496045 - иван
+chat_ids = ["904798847"] # 546496045 - иван
 message = f"Произведена инициализация бота {first_launch_date}. Проверка доноров ежедневно в {msk_time} МСК."
 for id in chat_ids:
     requests.get(f"https://api.telegram.org/bot{bot_token}/sendMessage?chat_id={id}&text={message}").json()
