@@ -9,7 +9,7 @@ from donor_checkers.utils.yandex_api import upload_file
 
 def imap_download(number, excel_file_name, password, headers):
 
-    yesterday = (datetime.now() - timedelta(days=3)).date().strftime("%Y-%m-%d")
+    yesterday = (datetime.now() - timedelta(days=1)).date().strftime("%Y-%m-%d")
     with Imbox('imap.yandex.ru',
             username='ipkazakovivandmit@yandex.ru',
             password=password,
