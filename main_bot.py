@@ -4,9 +4,11 @@ from datetime import *
 # import sched
 import schedule 
 import requests
+import os
 
 # my modules
 from donor_checkers.utils.yandex_api import download_file
+from donor_checkers.utils.imap_yandex import imap_download
 from donor_checkers.mkslift_checker import mkslift_check
 from donor_checkers.ironmac_checker import ironmac_check
 from donor_checkers.garopt_checker import garopt_check
@@ -50,13 +52,21 @@ def CheckUp():
             yandex_token = data['yandex_token']
             annex = data['annex']
             excel_file_name = data['excel_file_name']
-            # скачивание последних версий выгрузок с яндекс диска
+            contact_number = data['contact_number']
+
             headers = {'Content-Type': 'application/json', 'Accept': 'application/json', 'Authorization': f'OAuth {yandex_token}'}
-            download_file(f'{excel_file_name}.xlsx', headers)
+            
+            # Загрузка последних версий обратных выгрузок на яндекс диск с почты
+            imap_download(contact_number, excel_file_name, settings['imap_pass'], headers)
+
+            # скачивание последних версий выгрузок с яндекс диска
+            # download_file(f'{excel_file_name}.xlsx', headers)
+            # continue
+
             for donor in data['donors']:
                 # mkslift
                 if donor['name'] == 'mkslift':
-                    print(f"\n-=== Account name: {account['name']}, donor name: {donor['name']}, discount: {donor['discount']}, file: {excel_file_name} ===-")
+                    print(f"-=== Account name: {account['name']}, donor name: {donor['name']}, discount: {donor['discount']}, file: {excel_file_name} ===-")
                     daily_report['mkslift'] = mkslift_check(donor['link'], donor['discount'], donor['days_delta'], yandex_token, 
                                 donor['yandex_image_folder_path'], annex, check_new, excel_file_name + appendix, currencies, periodic_save_delta)
                 # ironmac
@@ -83,17 +93,17 @@ def CheckUp():
                 if donor['name'] == 'wiederkraft':
                     print(f"\n-=== Account name: {account['name']}, donor name: {donor['name']}, discount: {donor['discount']}, file: {excel_file_name} ===-")
                     daily_report['wiederkraft'] = wiederkraft_check(donor['link'],  donor['discount'], donor['days_delta'], yandex_token, 
-                            donor['yandex_image_folder_path'], annex, False, excel_file_name + appendix, currencies, periodic_save_delta)
+                            donor['yandex_image_folder_path'], annex, not check_new, excel_file_name + appendix, currencies, periodic_save_delta)
                 # Optimus
                 if donor['name'] == 'optimus':
                     print(f"\n-=== Account name: {account['name']}, donor name: {donor['name']}, discount: {donor['discount']}, file: {excel_file_name} ===-")
                     daily_report['optimus'] = optimus_check(donor['link'],  donor['discount'], donor['days_delta'], yandex_token, 
-                            donor['yandex_image_folder_path'], annex, False, excel_file_name + appendix, currencies, periodic_save_delta)
+                            donor['yandex_image_folder_path'], annex, not check_new, excel_file_name + appendix, currencies, periodic_save_delta)
                                 
-        message = f"\nУспешное обновление выгрузки!"              
-        print(message)
-        for id in chat_ids:
-            requests.get(f"https://api.telegram.org/bot{bot_token}/sendMessage?chat_id={id}&text={message}").json()
+        # message = f"\nУспешное обновление выгрузки!"
+        # print(message)
+        # for id in chat_ids:
+        #     requests.get(f"https://api.telegram.org/bot{bot_token}/sendMessage?chat_id={id}&text={message}").json()
 
     except Exception as e:
         print(e)
@@ -114,9 +124,9 @@ def CheckUp():
             CheckUp()
     finally:
         print(f'Результаты:')
-        message = ['Ежедневный отчет:']
+        message = ['Обновление завершено. Ежедневный отчет:\n']
         for key in daily_report:
-            report = f'{key}:\n- старые: {daily_report[key]['old']},\n- новые: {daily_report[key]['new']} (проверка новых {daily_report[key]['check']}),\n- скидка: {daily_report[key]['discount']}%\n'
+            report = f'{key}:\n- старые: {daily_report[key]['old']},\n- новые: {daily_report[key]['new']} (проверка новых {daily_report[key]['check']}),\n- скидка: {daily_report[key]['discount']}%'
             message.append(report)
             print(report)
         message.append(f"\nСледующая проверка завтра в {msk_time} МСК")
@@ -124,6 +134,10 @@ def CheckUp():
         for id in chat_ids:
             requests.get(f"https://api.telegram.org/bot{bot_token}/sendMessage?chat_id={id}&text={message}").json()
         print(f"Следующая проверка завтра в {msk_time} МСК")
+        # удаление локальных файлов
+        for account in accounts:
+            os.remove(f'{account['data']['excel_file_name']}.xlsx')
+
 
 CheckUp()           
 schedule.every().day.at(start_time).do(CheckUp) 

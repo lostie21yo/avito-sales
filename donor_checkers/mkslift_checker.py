@@ -25,7 +25,7 @@ def mkslift_check(donor_link, discount, days_delta, yandex_token, yandex_image_f
     offer_list = root.find('shop').find('offers').findall('offer')
 
     # открываем xlsx файл выгрузки
-    df = pd.read_excel(f"{excel_file_name}.xlsx", sheet_name='Sheet1')
+    df = pd.read_excel(f"{excel_file_name}.xlsx", sheet_name='Объявления')
     unique_Ids = df["Id"]
 
     # yesterday = str((datetime.now() - timedelta(days=1)).date().strftime("%d.%m.%Y"))
@@ -155,7 +155,7 @@ def mkslift_check(donor_link, discount, days_delta, yandex_token, yandex_image_f
                 if new_count!=0 and (new_count%periodic_save_delta == 0 or new_count == len(offer_list)):
                     # df['DateEnd'] = pd.to_datetime(df['DateEnd']).dt.date
                     df = df.drop_duplicates(subset=["Id"], keep='last')
-                    df.to_excel(f'{excel_file_name}.xlsx', sheet_name='Sheet1', index=False)
+                    df.to_excel(f'{excel_file_name}.xlsx', sheet_name='Объявления', index=False)
 
     # обновление существующих позиций
     old_count = 0
@@ -197,7 +197,7 @@ def mkslift_check(donor_link, discount, days_delta, yandex_token, yandex_image_f
     # df['DateEnd'] = pd.to_datetime(df['DateEnd']).dt.date
     df['DateEnd'] = pd.to_datetime(df.DateEnd).dt.strftime('%Y-%m-%d')
     df = df.drop_duplicates(subset=["Id"], keep='last')
-    df.to_excel(f'{excel_file_name}.xlsx', sheet_name='Sheet1', index=False)
+    df.to_excel(f'{excel_file_name}.xlsx', sheet_name='Объявления', index=False)
     upload_file(f'{excel_file_name}.xlsx', f'/{excel_file_name}.xlsx', headers, replace=True)
     if check_new:
         check = 'ВКЛ.'

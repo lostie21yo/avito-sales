@@ -36,7 +36,7 @@ root = ET.fromstring(xml_response.text)
 # root = pd.read_xml('export_xml.xml', parser="etree")
 
 # открываем xlsx файл 
-df = pd.read_excel(f"{file_name}.xlsx", sheet_name='Sheet1')
+df = pd.read_excel(f"{file_name}.xlsx", sheet_name='Объявления')
 
 with open('D:/my/Programming/avito-sales/env.json', encoding='utf-8') as settings_file:
     settings = json.load(settings_file)
@@ -76,5 +76,5 @@ for elem in tqdm(offer_list[:]):
 
     df.loc[index, 'ImageUrls'] = imageUrls
 
-df.to_excel(f'{file_name}_2.xlsx', sheet_name='Sheet1', index=False)
+df.to_excel(f'{file_name}_2.xlsx', sheet_name='Объявления', index=False)
 

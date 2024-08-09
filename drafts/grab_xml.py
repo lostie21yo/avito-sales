@@ -21,7 +21,7 @@ xml_response = requests.get(link)
 root = ET.fromstring(xml_response.text)
 
 # открываем xlsx файл 
-df = pd.read_excel(f"output/{file_name}", sheet_name='Sheet1')
+df = pd.read_excel(f"output/{file_name}", sheet_name='Объявления')
 
 # загрузка категорий
 categoryDict = {}
@@ -168,10 +168,10 @@ for elem in tqdm(offer_list[:]):
 
         count += 1
 
-    df.to_excel(f'output/{file_name}', sheet_name='Sheet1', index=False)
+    df.to_excel(f'output/{file_name}', sheet_name='Объявления', index=False)
 
 print(f"Добавлено строк: {count}/{len(offer_list)}")
 before_drop_count = len(df)
 df = df.drop_duplicates(subset=["Id"], keep='last')
 print(f"Из них {before_drop_count - len(df)} дупликаты (удалены)")
-df.to_excel(f'output/{file_name}', sheet_name='Sheet1', index=False)
+df.to_excel(f'output/{file_name}', sheet_name='Объявления', index=False)

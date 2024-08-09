@@ -4,8 +4,8 @@ from tqdm import trange
 file_name1 = "new_Выгрузка Промторг.xlsx"
 file_name2 = "Соответствие категорий Авито-Мкслифт.xlsx"
 
-vigruzka_df = pd.read_excel(f"output/{file_name1}", sheet_name='Sheet1')
-category_df = pd.read_excel(f"{file_name2}", sheet_name='Sheet1')
+vigruzka_df = pd.read_excel(f"output/{file_name1}", sheet_name='Объявления')
+category_df = pd.read_excel(f"{file_name2}", sheet_name='Объявления')
 
 column_list = vigruzka_df.columns.intersection(category_df.columns).tolist()[1:]
 
@@ -25,4 +25,4 @@ for i in trange(len(vigruzka_df)): #len(vigruzka_df)
                     break
             continue
 
-vigruzka_df.to_excel(f'output/{file_name1}', sheet_name='Sheet1', index=False)
+vigruzka_df.to_excel(f'output/{file_name1}', sheet_name='Объявления', index=False)

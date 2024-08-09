@@ -23,7 +23,7 @@ def ironmac_check(donor_link, discount, days_delta, yandex_token, yandex_image_f
     donor_df = pd.read_csv(donor_link, sep=';', index_col=False)
 
     # открываем xlsx файл выгрузки
-    df = pd.read_excel(f"{excel_file_name}.xlsx", sheet_name='Sheet1')
+    df = pd.read_excel(f"{excel_file_name}.xlsx", sheet_name='Объявления')
     unique_Ids = df["Id"]
     # print(unique_Ids.values)
 
@@ -90,8 +90,8 @@ def ironmac_check(donor_link, discount, days_delta, yandex_token, yandex_image_f
 
                 # description
                 specifications = []
-                if not pd.isna(donor_df['Анонс'][j]):
-                    html_table = BS(donor_df['Анонс'][j], 'html.parser')
+                if not pd.isna(donor_df['Анонс'][i]):
+                    html_table = BS(donor_df['Анонс'][i], 'html.parser')
                     rows = html_table.find_all("tr")
                     for tr in rows:
                         cols = tr.find_all("td")
@@ -105,7 +105,7 @@ def ironmac_check(donor_link, discount, days_delta, yandex_token, yandex_image_f
                 else:
                     specifications = ''
 
-                description = f"{df.loc[i, 'Title']}\n\n{specifications}{donor_df['Описание'][j]}\n\n{annex}"
+                description = f"{df.loc[i, 'Title']}\n\n{specifications}{donor_df['Описание'][i]}\n\n{annex}"
 
                 # запись
                 new_count += 1
@@ -118,7 +118,7 @@ def ironmac_check(donor_link, discount, days_delta, yandex_token, yandex_image_f
                 # периодический сейв
                 if i!=0 and i%periodic_save_delta == 0:
                     df = df.drop_duplicates(subset=["Id"], keep='last')
-                    df.to_excel(f'{excel_file_name}.xlsx', sheet_name='Sheet1', index=False)
+                    df.to_excel(f'{excel_file_name}.xlsx', sheet_name='Объявления', index=False)
 
     old_count = 0
     # Обновление существующих позиций в выгрузке
@@ -164,7 +164,7 @@ def ironmac_check(donor_link, discount, days_delta, yandex_token, yandex_image_f
     # df['DateEnd'] = pd.to_datetime(df['DateEnd']).dt.date
     df['DateEnd'] = pd.to_datetime(df.DateEnd).dt.strftime('%Y-%m-%d')
     df = df.drop_duplicates(subset=["Id"], keep='last')
-    df.to_excel(f'{excel_file_name}.xlsx', sheet_name='Sheet1', index=False)
+    df.to_excel(f'{excel_file_name}.xlsx', sheet_name='Объявления', index=False)
     upload_file(f'{excel_file_name}.xlsx', f'/{excel_file_name}.xlsx', headers, replace=True)
     if check_new:
         check = 'ВКЛ.'
