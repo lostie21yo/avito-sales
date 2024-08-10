@@ -38,5 +38,5 @@ def imap_download(number, excel_file_name, password, headers):
                 break
         else:
             # скачивание последних версий выгрузок с яндекс диска
-            print(f'Файл {excel_file_name}.xlsx скачан с Яндекс диска')
+            print(f'\nФайл {excel_file_name}.xlsx скачан с Яндекс диска')
             download_file(f'{excel_file_name}.xlsx', headers)
