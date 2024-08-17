@@ -1,8 +1,15 @@
 import cv2
+from urllib.parse import quote, urlsplit, urlunsplit
 from urllib.request import urlopen
 import numpy as np
 
+def get_ascii_url(url: str) -> str:
+    url = list(urlsplit(url))
+    url[2] = quote(url[2])
+    return urlunsplit(url)
+
 def format_image(link, target_size = (1280, 960)):
+    # link = get_ascii_url(link)
     req = urlopen(link)
     arr = np.asarray(bytearray(req.read()), dtype=np.uint8)
     img = cv2.imdecode(arr, -1) # 'Load it as it is'
@@ -34,4 +41,8 @@ def format_image(link, target_size = (1280, 960)):
     # cv2.imwrite("prog1/new_image.jpg", img)
     return img 
 
-# cv2.imwrite("new_image.jpg", format_image("http://garopt.online/wa-data/public/shop/products/65/53/65365/images/29731/29731.970.png")) 
+# origURL = "https://100kwatt.ru/images/detailed/156/HRH-HС138-1.webp"
+# origURL = get_ascii_url(origURL)
+# filename = origURL.split('/')[-1].split('.')[0] + '.jpg'
+# resized_img = format_image(origURL)
+# cv2.imwrite(filename, resized_img)
